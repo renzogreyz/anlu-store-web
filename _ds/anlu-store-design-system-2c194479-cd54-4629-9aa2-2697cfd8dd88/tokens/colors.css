@@ -1,0 +1,57 @@
+:root{
+/* ---- brand palette (exact brand values) ---- */
+--lavender-300:#C4B5FD;
+--violet-700:#7D5BA6;
+--lilac-100:#EDE1FF;
+--cream-50:#FDF6EE;
+--gold-500:#D4AF37;
+
+/* ---- derived scale ---- */
+--violet-900:#4A2E63;
+--violet-800:#5F3F82;
+--violet-600:#8F6FB5;
+--violet-400:#B49AD1;
+--lavender-200:#DCD0FE;
+--lilac-50:#F6EFFF;
+--cream-100:#F8EFE2;
+--gold-600:#B8942B;
+--gold-200:#EFE0B4;
+--ink-900:#2E2434;
+--ink-700:#4B4055;
+--ink-500:#6F6379;
+--ink-300:#A79FB0;
+--line-200:#E7DFF0;
+--white:#FFFFFF;
+
+/* ---- semantic aliases ---- */
+--text-heading:var(--ink-900);
+--text-body:var(--ink-700);
+--text-muted:var(--ink-500);
+--text-on-accent:var(--white);
+--text-accent:var(--violet-700);
+--text-gold:var(--gold-600);
+
+--surface-page:var(--white);
+--surface-warm:var(--cream-50);
+--surface-soft:var(--lilac-100);
+--surface-card:var(--white);
+--surface-topbar:var(--violet-900);
+--surface-accent:var(--violet-700);
+--surface-accent-hover:var(--violet-800);
+--surface-accent-press:var(--violet-900);
+--surface-ghost-hover:var(--lilac-50);
+
+--border-subtle:var(--line-200);
+--border-gold:var(--gold-200);
+--border-accent:var(--violet-700);
+--icon-default:var(--violet-700);
+--icon-gold:var(--gold-500);
+--focus-ring:var(--violet-400);
+
+/* ---- signature gradients ---- */
+--grad-hero:linear-gradient(135deg,#F3ECFF 0%,#EDE1FF 45%,#E4D6FA 100%); /* @kind color */
+--grad-banner:linear-gradient(90deg,#EDE1FF 0%,#E9DCF8 60%,#F3E8FF 100%); /* @kind color */
+--grad-warm:linear-gradient(180deg,var(--cream-50) 0%,var(--lilac-50) 100%); /* @kind color */
+--grad-gold:linear-gradient(90deg,rgba(212,175,55,0) 0%,var(--gold-500) 50%,rgba(212,175,55,0) 100%); /* @kind color */
+--grad-photo:linear-gradient(160deg,#DCD0FE 0%,#C4B5FD 55%,#EDE1FF 100%); /* @kind color */
+}

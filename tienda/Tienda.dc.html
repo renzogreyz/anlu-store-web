@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<!-- @template name="Tienda Anlu" description="Página de catálogo: buscador visible, pestañas de categoría y grilla de prendas con consulta por WhatsApp." -->
+<helmet><script src="./ds-base.js"></script></helmet>
+<div style="background:#FFFFFF;font-family:'Jost',Arial,sans-serif;color:#4B4055;min-height:100vh">
+<div style="background:#4A2E63;color:#fff;text-align:center;padding:9px 24px;font-size:10px;letter-spacing:.14em;text-transform:uppercase">Envíos a toda Colombia · Pago contraentrega disponible · Compra 100% segura</div>
+<header style="position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:32px;padding:14px 40px;border-bottom:1px solid #E7DFF0;background:rgba(255,255,255,.92);backdrop-filter:blur(10px)">
+<a href="#" style="display:block;flex:0 0 auto"><img src="assets/logo.png" alt="Anlu Store" style="display:block;height:52px;width:auto"></a>
+<nav style="display:flex;gap:36px;flex:1;justify-content:center;font-size:15px;white-space:nowrap;letter-spacing:.02em"><a href="templates/storefront/Storefront.dc.html" style="color:#4B4055;text-decoration:none;padding-bottom:3px;border-bottom:1px solid transparent">Inicio</a><a href="#" style="color:#7D5BA6;text-decoration:none;border-bottom:1px solid #D4AF37;padding-bottom:3px">Tienda</a></nav>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.WhatsAppButton" size="sm" hint-size="200px,38px">Escríbenos</x-import>
+</header>
+<section style="background:linear-gradient(180deg,#FDF6EE 0%,#F6EFFF 100%);border-bottom:1px solid #E7DFF0;padding:56px 40px 32px">
+<div style="max-width:1200px;margin:0 auto;display:grid;gap:28px;justify-items:center">
+<div style="display:grid;gap:8px;justify-items:center;text-align:center">
+<span style="font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#7D5BA6">Catálogo completo</span>
+<h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:34px;letter-spacing:.06em;text-transform:uppercase;margin:0;color:#2E2434">Tienda</h1>
+<p style="font-weight:300;font-size:15px;line-height:1.65;color:#6F6379;margin:0">Encuentra tu prenda y compra por WhatsApp</p>
+</div>
+<div style="display:flex;align-items:center;gap:10px;width:100%;max-width:560px;background:#fff;border:1px solid #E7DFF0;border-radius:8px;padding:0 16px;height:52px;box-shadow:0 2px 10px rgba(74,46,99,.06)">
+<img src="https://unpkg.com/lucide-static@0.454.0/icons/search.svg" width="18" height="18" style="opacity:.55">
+<input type="text" placeholder="Buscar por nombre de prenda…" value="{{ query }}" onInput="{{ onQuery }}" style="flex:1;border:0;outline:none;background:transparent;font-family:'Jost',Arial,sans-serif;font-weight:300;font-size:15px;color:#2E2434">
+<sc-if value="{{ hasQuery }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ clearQuery }}" style="border:0;background:transparent;cursor:pointer;display:inline-flex;padding:4px"><img src="https://unpkg.com/lucide-static@0.454.0/icons/x.svg" width="16" height="16" style="opacity:.5"></button>
+</sc-if>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;justify-content:flex-start;max-width:100%;padding-bottom:2px">
+<sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="7">
+<sc-if value="{{ tab.active }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ tab.select }}" style="cursor:pointer;font-family:'Jost',Arial,sans-serif;font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding:11px 20px;border-radius:999px;border:1px solid #7D5BA6;background:#7D5BA6;color:#FFFFFF;box-shadow:0 2px 10px rgba(74,46,99,.18);transition:all 240ms cubic-bezier(.22,.61,.36,1)">{{ tab.label }}</button>
+</sc-if>
+<sc-if value="{{ tab.inactive }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ tab.select }}" style="cursor:pointer;font-family:'Jost',Arial,sans-serif;font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;padding:11px 20px;border-radius:999px;border:1px solid #E7DFF0;background:#FFFFFF;color:#4B4055;transition:all 240ms cubic-bezier(.22,.61,.36,1)" style-hover="background:#F6EFFF;border-color:#B49AD1;color:#7D5BA6">{{ tab.label }}</button>
+</sc-if>
+</sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:0;align-items:stretch;background:#FFFFFF;border:1px solid #E7DFF0;border-radius:12px;box-shadow:0 2px 10px rgba(74,46,99,.06);overflow:hidden;max-width:860px;width:100%">
+<div style="flex:1;min-width:200px;display:flex;gap:10px;padding:14px 18px">
+<img src="https://unpkg.com/lucide-static@0.454.0/icons/truck.svg" width="18" height="18" style="opacity:.75;margin-top:2px">
+<div><div style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#7D5BA6">Cobertura nacional</div><div style="font-weight:300;font-size:12px;line-height:1.5;color:#6F6379">Enviamos a toda Colombia</div></div>
+</div>
+<div style="flex:1;min-width:200px;display:flex;gap:10px;padding:14px 18px;border-left:1px solid #E7DFF0">
+<img src="https://unpkg.com/lucide-static@0.454.0/icons/clock.svg" width="18" height="18" style="opacity:.75;margin-top:2px">
+<div><div style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#7D5BA6">Tiempos de entrega</div><div style="font-weight:300;font-size:12px;line-height:1.5;color:#6F6379">2 a 5 días hábiles según ciudad</div></div>
+</div>
+<div style="flex:1;min-width:200px;display:flex;gap:10px;padding:14px 18px;border-left:1px solid #E7DFF0">
+<img src="https://unpkg.com/lucide-static@0.454.0/icons/banknote.svg" width="18" height="18" style="opacity:.75;margin-top:2px">
+<div><div style="font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#7D5BA6">Pago contraentrega</div><div style="font-weight:300;font-size:12px;line-height:1.5;color:#6F6379">Pagas cuando recibes tu pedido</div></div>
+</div>
+</div>
+</div>
+</section>
+<section style="padding:36px 40px 96px">
+<div style="max-width:1200px;margin:0 auto;display:grid;gap:24px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:16px">
+<span style="font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#6F6379">{{ resultLabel }}</span>
+<span style="font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#6F6379">Ordenar por · novedades</span>
+</div>
+<sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+<sc-for list="{{ productos }}" as="p" hint-placeholder-count="8">
+<div id="{{ p.anchor }}">
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.ProductCard" name="{{ p.name }}" price="{{ p.price }}" badge="{{ p.badge }}" category="{{ p.category }}" stock="{{ p.stock }}" colors="{{ p.colors }}" highlight="{{ p.highlight }}" hint-size="100%,480px"></x-import>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;gap:18px;justify-items:center;text-align:center;padding:80px 0;background:#F6EFFF;border-radius:18px">
+<img src="https://unpkg.com/lucide-static@0.454.0/icons/sparkles.svg" width="26" height="26" style="filter:invert(63%) sepia(56%) saturate(560%) hue-rotate(2deg) brightness(92%)">
+<p style="font-weight:300;font-size:15px;line-height:1.65;color:#6F6379;margin:0;max-width:420px">Todavía no tenemos prendas para esa búsqueda. Escríbenos y te ayudamos a encontrarla.</p>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.WhatsAppButton" hint-size="260px,44px">Escríbenos por WhatsApp</x-import>
+</div>
+</sc-if>
+</div>
+</section>
+<footer style="background:#FDF6EE;border-top:1px solid #E7DFF0;padding:48px 40px;text-align:center;display:grid;gap:14px;justify-items:center">
+<div style="display:grid;justify-items:center"><span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1;color:#7D5BA6">Anlu</span><span style="font-size:10px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:#B8942B">Store</span></div>
+<p style="font-weight:300;font-size:13px;color:#6F6379;margin:0">WhatsApp +57 320 123 4567 · hola@anlustore.com · Lunes a viernes 8:00–18:00</p>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.GoldDivider" motif="sparkles" width="240px" hint-size="240px,16px"></x-import>
+<p style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6F6379;margin:0">© 2026 Anlu Store · Todos los derechos reservados</p>
+</footer>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SelectionBar" phone="573201234567" hint-size="0px,0px"></x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CATALOGO = [
+  { name:'Blusa Gasa Marfil', price:'$89.900', category:'Blusas', badge:'Nuevo', stock:'disponible', colors:['Marfil','Crema'] },
+  { name:'Blusa Manga Globo', price:'$99.900', category:'Blusas', badge:'', stock:'agotado', colors:['Marfil','Lila'] },
+  { name:'Blusa Satén Lavanda', price:'$104.900', category:'Blusas', badge:'', stock:'disponible', colors:['Lila','Perla'] },
+  { name:'Body Encaje Crema', price:'$74.900', category:'Bodys', badge:'', stock:'disponible', colors:['Crema','Negro'] },
+  { name:'Body Drapeado Violeta', price:'$84.900', category:'Bodys', badge:'Nuevo', stock:'disponible', colors:['Violeta','Negro'] },
+  { name:'Bikini Lavanda', price:'$119.900', category:'Trajes de baño', badge:'Nuevo', stock:'agotado', colors:['Lila','Azul claro'] },
+  { name:'Enterizo de Baño Crema', price:'$139.900', category:'Trajes de baño', badge:'', stock:'disponible', colors:['Crema','Negro'] },
+  { name:'Vestido Lila Satinado', price:'$159.900', category:'Vestidos', badge:'Nuevo', stock:'disponible', colors:['Lila','Violeta'] },
+  { name:'Vestido Floral Midi', price:'$169.900', category:'Vestidos', badge:'', stock:'disponible', colors:['Floral','Lila'] },
+  { name:'Jean Wide Leg Claro', price:'$149.900', category:'Jeans', badge:'', stock:'disponible', colors:['Azul claro'] },
+  { name:'Jean Skinny Tiro Alto', price:'$139.900', category:'Jeans', badge:'', stock:'disponible', colors:['Azul claro','Negro'] },
+  { name:'Pijama Satén Lila', price:'$129.900', category:'Pijamas', badge:'Nuevo', stock:'disponible', colors:['Lila','Perla'] },
+  { name:'Pijama Algodón Perla', price:'$109.900', category:'Pijamas', badge:'', stock:'disponible', colors:['Perla','Lila'] },
+];
+const CATEGORIAS = ['Todas','Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
+
+const slug = (s) => 'prenda-' + s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+class Component extends DCLogic {
+  state = { query: '', category: 'Todas', highlight: null };
+
+  componentDidMount() {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('categoria');
+    if (cat && CATEGORIAS.includes(cat)) this.setState({ category: cat });
+    const param = params.get('prenda');
+    if (!param) return;
+    const match = CATALOGO.find((p) => p.name === param);
+    if (!match) return;
+    this.setState({ highlight: match.name });
+    setTimeout(() => {
+      const el = document.getElementById(slug(match.name));
+      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 140, behavior: 'smooth' });
+    }, 240);
+    this._t = setTimeout(() => this.setState({ highlight: null }), 2600);
+  }
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  renderVals() {
+    const { query, category, highlight } = this.state;
+    const q = query.trim().toLowerCase();
+    const productos = CATALOGO.filter((p) =>
+      (category === 'Todas' || p.category === category) &&
+      (!q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q))
+    ).map((p) => ({ ...p, anchor: slug(p.name), highlight: p.name === highlight }));
+    const tabs = CATEGORIAS.map((label) => {
+      const active = label === category;
+      return {
+        label, active, inactive: !active,
+        select: () => this.setState({ category: label }),
+      };
+    });
+    const n = productos.length;
+    return {
+      tabs, productos,
+      query,
+      hasQuery: q.length > 0,
+      hasResults: n > 0,
+      isEmpty: n === 0,
+      resultLabel: n === 0
+        ? 'Sin resultados'
+        : `${n} ${n === 1 ? 'prenda' : 'prendas'}${category === 'Todas' ? '' : ' en ' + category}`,
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      clearQuery: () => this.setState({ query: '' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

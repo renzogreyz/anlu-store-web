@@ -1,0 +1,36 @@
+:root{
+--font-display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+--font-sans:"Jost","Helvetica Neue",Arial,sans-serif;
+
+--fs-display-xl:64px;
+--fs-display-l:48px;
+--fs-display-m:34px;
+--fs-display-s:26px;
+--fs-body-l:17px;
+--fs-body-m:15px;
+--fs-body-s:13px;
+--fs-caption:11px;
+
+--lh-tight:1.05; /* @kind font */
+--lh-display:1.12; /* @kind font */
+--lh-body:1.65; /* @kind font */
+
+--fw-light:300; /* @kind font */
+--fw-regular:400; /* @kind font */
+--fw-medium:500; /* @kind font */
+--fw-semi:600; /* @kind font */
+
+--ls-display:-0.01em; /* @kind font */
+--ls-body:0; /* @kind font */
+--ls-eyebrow:0.22em; /* @kind font */
+--ls-button:0.14em; /* @kind font */
+--ls-nav:0.02em; /* @kind font */
+
+/* semantic type roles */
+--type-hero:var(--fw-light) var(--fs-display-xl)/var(--lh-tight) var(--font-display); /* @kind font */
+--type-section:var(--fw-regular) var(--fs-display-m)/var(--lh-display) var(--font-display); /* @kind font */
+--type-card-title:var(--fw-regular) var(--fs-body-m)/1.4 var(--font-sans); /* @kind font */
+--type-body:var(--fw-light) var(--fs-body-m)/var(--lh-body) var(--font-sans); /* @kind font */
+--type-eyebrow:var(--fw-medium) var(--fs-caption)/1.2 var(--font-sans); /* @kind font */
+--type-button:var(--fw-medium) var(--fs-body-s)/1 var(--font-sans); /* @kind font */
+}

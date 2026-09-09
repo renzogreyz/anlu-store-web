@@ -1,0 +1,17 @@
+:root{
+--radius-xs:4px;
+--radius-sm:8px;
+--radius-md:12px;
+--radius-lg:18px;
+--radius-xl:28px;
+--radius-pill:999px;
+--radius-circle:50%;
+
+--border-hairline:1px; /* @kind other */
+
+--shadow-soft:0 2px 10px rgba(74,46,99,.06);
+--shadow-card:0 8px 24px rgba(74,46,99,.08);
+--shadow-lift:0 14px 34px rgba(74,46,99,.14);
+--shadow-inset-top:inset 0 1px 0 rgba(255,255,255,.6);
+--shadow-focus:0 0 0 3px rgba(180,154,209,.45);
+}

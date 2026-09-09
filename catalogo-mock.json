@@ -1,0 +1,89 @@
+{
+  "productos": [
+    {
+      "id": "AN-001",
+      "nombre": "Vestido Satinado",
+      "categoria": "Vestidos",
+      "precio": 159900,
+      "descripcion": "Vestido satinado con tiras finas, ideal para ocasiones especiales.",
+      "nuevo": true,
+      "variantes": [
+        {
+          "color": "Lila",
+          "talles": ["S", "M", "L"],
+          "stock": 12,
+          "imagenes": [
+            "https://placehold.co/600x800/C4B5FD/7D5BA6?text=Vestido+Lila+1",
+            "https://placehold.co/600x800/C4B5FD/7D5BA6?text=Vestido+Lila+2"
+          ]
+        },
+        {
+          "color": "Beige",
+          "talles": ["M", "L", "XL"],
+          "stock": 3,
+          "imagenes": [
+            "https://placehold.co/600x800/FDF6EE/7D5BA6?text=Vestido+Beige+1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AN-002",
+      "nombre": "Blusa Drapeada",
+      "categoria": "Blusas",
+      "precio": 89900,
+      "descripcion": "Blusa liviana con detalle drapeado en el escote.",
+      "nuevo": false,
+      "variantes": [
+        {
+          "color": "Negro",
+          "talles": ["S", "M"],
+          "stock": 0,
+          "imagenes": [
+            "https://placehold.co/600x800/222222/D4AF37?text=Blusa+Negra"
+          ]
+        },
+        {
+          "color": "Lila",
+          "talles": ["S", "M", "L"],
+          "stock": 7,
+          "imagenes": [
+            "https://placehold.co/600x800/C4B5FD/7D5BA6?text=Blusa+Lila"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "AN-003",
+      "nombre": "Traje de Baño Enterizo",
+      "categoria": "Trajes de baño",
+      "precio": 129900,
+      "descripcion": "Enterizo con espalda cruzada, tela con protección UV.",
+      "nuevo": true,
+      "variantes": [
+        {
+          "color": "Dorado",
+          "talles": ["S", "M", "L"],
+          "stock": 5,
+          "imagenes": [
+            "https://placehold.co/600x800/D4AF37/222222?text=Enterizo+Dorado"
+          ]
+        }
+      ]
+    }
+  ],
+  "novedades": [
+    {
+      "orden": 1,
+      "id_producto": "AN-001",
+      "imagen": "https://placehold.co/1200x675/C4B5FD/7D5BA6?text=Nueva+Colecci%C3%B3n",
+      "activo": true
+    },
+    {
+      "orden": 2,
+      "id_producto": "AN-003",
+      "imagen": "https://placehold.co/1200x675/D4AF37/222222?text=Verano+2026",
+      "activo": true
+    }
+  ]
+}
