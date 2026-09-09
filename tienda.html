@@ -134,7 +134,7 @@ class Component extends DCLogic {
   state = { query: '', category: 'Todas', highlight: null, catalogo: null };
 
   componentDidMount() {
-    fetch('./catalogo-mock.json')
+    fetch('https://raw.githubusercontent.com/renzogreyz/anlu-store-data/refs/heads/main/catalogo.json')
       .then(r => r.json())
       .then(data => {
         this.setState({ catalogo: data });
