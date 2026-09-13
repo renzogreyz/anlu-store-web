@@ -2,6 +2,11 @@
 
 > **Actualización 2026-09-13**: Se agregaron correcciones de responsividad mobile.
 > Ver sección "Responsividad Mobile" al final.
+>
+> **Actualización 2026-09-13 (tarde)**: Cambios A/B/C implementados.
+> - `contenidoVisual` aún NO existe en el JSON de GitHub. El código lo lee con fallback graceful — cuando el campo aparezca, las imágenes se mostrarán automáticamente sin cambios de código.
+> - Claves esperadas: `contenidoVisual.hero.{principal,secundaria1,secundaria2}`, `contenidoVisual.esenciaAnlu.{etiquetaAnlu,percheros,vestidoEspalda}`, `contenidoVisual.categorias.{<nombre_categoria>}`.
+> - Categorías en Inicio ahora se filtran por stock (igual que en Tienda).
 
 ## Objetivo
 Reorganizar el sitio Anlu Store en dos páginas (index.html y tienda.html)

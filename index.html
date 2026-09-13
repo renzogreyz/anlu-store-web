@@ -15,103 +15,97 @@
 /* Evita scroll horizontal en toda la página */
 html, body { overflow-x: hidden; max-width: 100%; }
 
-/* ── 3. HEADER ─────────────────────────────────────────────── */
+/* ── HEADER ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   header {
     padding: 12px 16px !important;
     gap: 12px !important;
     flex-wrap: wrap;
   }
-  /* En mobile: logo (oculto en index, hay logo en el hero)
-     nav centrada, botón WhatsApp alineado */
   header nav {
     gap: 20px !important;
     font-size: 13px !important;
     justify-content: flex-start !important;
     flex: 1 !important;
   }
-  /* El botón WhatsApp se encoge con size="sm" — solo ajustamos si desborda */
-  header > a[href] img { height: 40px !important; }
 }
 
-/* ── 2 & 4. HERO (sección con gradiente) ─────────────────── */
+/* ── HERO: colapsar grilla + padding ────────────────────────── */
 @media (max-width: 768px) {
-  /* Colapsar la grilla 2 columnas a 1 columna */
-  section:first-of-type > div[style*="grid-template-columns:1fr 1fr"],
-  section[style*="135deg"] > div {
-    grid-template-columns: 1fr !important;
-    gap: 32px !important;
-    padding: 0 !important;
-  }
   section[style*="135deg"] {
-    padding: 48px 20px !important;
+    padding: 40px 20px !important;
   }
-  /* Logo del hero: quitar translateX que lo desplaza off-screen */
-  section[style*="135deg"] img[alt="Anlu Store"] {
-    transform: none !important;
-    width: min(280px, 85%) !important;
-    justify-self: center !important;
+  /* Contenedor interno: 1 columna */
+  .anlu-hero-inner {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
   }
-  /* Texto hero: centrar en mobile */
-  section[style*="135deg"] > div > div:first-child {
+  /* Bloque de texto: centrar todo */
+  .anlu-hero-texto {
     justify-items: center !important;
     text-align: center !important;
   }
-  section[style*="135deg"] p {
+  /* Logo: quitar translateX y ajustar ancho */
+  .anlu-hero-texto img[alt="Anlu Store"] {
+    transform: none !important;
+    width: min(260px, 80%) !important;
+    justify-self: center !important;
+  }
+  .anlu-hero-texto p {
     max-width: 100% !important;
   }
-  /* Botones hero: apilar en mobile */
-  section[style*="135deg"] div[style*="display:flex;gap:12px"] {
-    flex-direction: column !important;
+  /* CAMBIO C1: Botones — alinear al centro con el texto */
+  .anlu-hero-botones {
+    justify-content: center !important;
     width: 100% !important;
-    align-items: stretch !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
   }
-  /* Fotos del hero: ocultar en mobile para no generar altura extra */
-  section[style*="135deg"] > div > div:last-child {
+  /* CAMBIO C2: Fotos del hero — mostrar en mobile (1 columna, imagen principal) */
+  .anlu-hero-fotos {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  /* Ocultar el bloque de 2 fotos pequeñas en mobile para no sobrecargar */
+  .anlu-hero-fotos-secundarias {
     display: none !important;
   }
 }
 
-/* ── 2. SECCIONES — padding general ────────────────────────── */
+/* ── SECCIONES — padding general ────────────────────────────── */
 @media (max-width: 768px) {
-  /* Categorías circulares */
   section[style*="background:#FDF6EE"] {
     padding: 48px 16px !important;
   }
-  /* Carrusel */
   section[style*="padding:64px 40px 0"] {
     padding: 32px 12px 0 !important;
   }
-  /* Novedades */
   section[id="novedades"] {
     padding: 48px 16px 64px !important;
   }
-  /* Sección "esencia de Anlu" */
   section[style*="background:#F8EFE2"] {
     padding: 48px 16px !important;
   }
-  /* Footer */
   footer {
     padding: 40px 20px !important;
   }
 }
 
-/* ── 5. CARRUSEL — contener sin desborde ─────────────────── */
+/* ── CARRUSEL — sin desborde ─────────────────────────────────── */
 @media (max-width: 768px) {
   .anlu-carousel-wrap {
     max-width: 100% !important;
-    /* clip no crea contexto de apilamiento vertical, no corta tarjetas */
     overflow: clip !important;
   }
 }
 
-/* ── 6. GRILLA NOVEDADES — clases directas para máxima certeza ─ */
+/* ── GRILLA NOVEDADES ────────────────────────────────────────── */
 @media (max-width: 768px) {
   .anlu-novedades-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 12px !important;
   }
-  /* Cada tarjeta debe mostrarse completa — sin recorte */
   .anlu-novedades-grid > * {
     overflow: visible !important;
     height: auto !important;
@@ -124,22 +118,22 @@ html, body { overflow-x: hidden; max-width: 100%; }
   }
 }
 
-/* ── 9. SECCIÓN "ESENCIA" — colapsar 2 cols a 1 ─────────── */
+/* ── SECCIÓN "ESENCIA" ───────────────────────────────────────── */
 @media (max-width: 768px) {
   .anlu-esencia-inner {
     grid-template-columns: 1fr !important;
     gap: 24px !important;
   }
-  /* Galería de fotos → ocultar en mobile, texto completo visible */
+  /* CAMBIO C3: Fotos de esencia — mostrar apiladas en mobile (no ocultar) */
   .anlu-esencia-fotos {
-    display: none !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
   }
 }
 
-/* ── 8. MODAL TALLA/COLOR (ProductOptionsModal del DS) ────── */
-/* El modal tiene width:420px fijo — lo hacemos fluido */
+/* ── MODAL TALLA/COLOR ───────────────────────────────────────── */
 @media (max-width: 480px) {
-  /* El overlay usa position:fixed + grid place-items:center */
   div[style*="position: fixed"][style*="z-index: 80"] > div,
   div[style*="position:fixed"][style*="zIndex: 80"] > div {
     width: calc(100vw - 32px) !important;
@@ -147,8 +141,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
   }
 }
 
-/* ── 8. SELECTION BAR DRAWER (SelectionBar del DS) ────────── */
-/* El drawer tiene width:420px fijo */
+/* ── SELECTION BAR ───────────────────────────────────────────── */
 @media (max-width: 480px) {
   aside[style*="width: 420px"],
   aside[style*="width:420px"] {
@@ -157,8 +150,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
   }
 }
 
-/* ── Utilidad global: evitar que elementos con max-width fijo
-   desborden en pantallas muy chicas ─────────────────────── */
+/* ── Utilidad global ─────────────────────────────────────────── */
 @media (max-width: 480px) {
   [style*="max-width:420px"],
   [style*="max-width:400px"] {
@@ -177,36 +169,61 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <nav style="display:flex;gap:40px;flex:1;justify-content:flex-start;font-size:15px;white-space:nowrap;letter-spacing:.02em"><a href="./index.html" style="color:#7D5BA6;text-decoration:none;border-bottom:1px solid #D4AF37;padding-bottom:3px">Inicio</a><a href="./tienda.html" style="color:#4B4055;text-decoration:none;padding-bottom:3px;border-bottom:1px solid transparent">Tienda</a></nav>
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.WhatsAppButton" size="sm" hint-size="200px,38px">Escríbenos</x-import>
 </header>
-<section style="background:linear-gradient(135deg,#F3ECFF 0%,#EDE1FF 45%,#E4D6FA 100%);padding:96px 40px"><div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
-<div style="display:grid;gap:16px;justify-items:start">
+
+<!-- HERO -->
+<section style="background:linear-gradient(135deg,#F3ECFF 0%,#EDE1FF 45%,#E4D6FA 100%);padding:96px 40px">
+<div class="anlu-hero-inner" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+<div class="anlu-hero-texto" style="display:grid;gap:16px;justify-items:start">
 <img src="assets/logo.png" alt="Anlu Store" style="display:block;width:min(340px,78%);height:auto;margin:0 0 12px;justify-self:center;transform:translateX(-42px)">
 <span style="font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#7D5BA6">Siéntete única, siéntete tú</span>
 <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:clamp(38px,5vw,64px);line-height:1.05;margin:0;color:#2E2434">Ropa que realza tu <em style="color:#7D5BA6">esencia</em></h1>
 <p style="font-weight:300;font-size:17px;line-height:1.65;max-width:400px;margin:0">Diseños para mujeres que quieren sentirse cómodas, auténticas y hermosas siendo ellas mismas.</p>
-<div style="display:flex;gap:12px;margin-top:8px">
+<div class="anlu-hero-botones" style="display:flex;gap:12px;margin-top:8px">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.Button" as="a" href="./tienda.html" size="lg" hint-size="180px,50px">Ver la tienda</x-import>
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.Button" as="a" href="#novedades" size="lg" variant="secondary" hint-size="150px,50px">Novedades</x-import>
 </div>
 </div>
-<div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px">
+<div class="anlu-hero-fotos" style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px">
+<sc-if value="{{ heroImgs.principal }}" hint-placeholder-val="{{ true }}">
+<img src="{{ heroImgs.principal }}" alt="Look Anlu" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block">
+</sc-if>
+<sc-if value="{{ !heroImgs.principal }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="3 / 4" radius="18px" label="Modelo · look lavanda" hint-size="100%,420px"></x-import>
-<div style="display:grid;gap:12px">
+</sc-if>
+<div class="anlu-hero-fotos-secundarias" style="display:grid;gap:12px">
+<sc-if value="{{ heroImgs.secundaria1 }}" hint-placeholder-val="{{ true }}">
+<img src="{{ heroImgs.secundaria1 }}" alt="Detalle Anlu" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;display:block">
+</sc-if>
+<sc-if value="{{ !heroImgs.secundaria1 }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="1 / 1" radius="18px" label="Percheros lila" hint-size="100%,200px"></x-import>
+</sc-if>
+<sc-if value="{{ heroImgs.secundaria2 }}" hint-placeholder-val="{{ true }}">
+<img src="{{ heroImgs.secundaria2 }}" alt="Detalle Anlu" style="width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:18px;display:block">
+</sc-if>
+<sc-if value="{{ !heroImgs.secundaria2 }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="1 / 1" radius="18px" label="Detalle de tela" hint-size="100%,200px"></x-import>
+</sc-if>
 </div>
 </div>
-</div></section>
+</div>
+</section>
+
+<!-- CATEGORÍAS -->
 <section style="background:#FDF6EE;padding:96px 40px"><div style="max-width:1200px;margin:0 auto;display:grid;gap:32px;justify-items:center">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SectionHeading" title="Descubre por categorías" hint-size="400px,50px"></x-import>
 <div style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap">
 <sc-for list="{{ categorias }}" as="cat" hint-placeholder-count="6">
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.CategoryCircle" label="{{ cat.label }}" href="{{ cat.href }}" hint-size="132px,170px"></x-import>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.CategoryCircle" label="{{ cat.label }}" href="{{ cat.href }}" image="{{ cat.image }}" hint-size="132px,170px"></x-import>
 </sc-for>
 </div>
 </div></section>
+
+<!-- CARRUSEL -->
 <section style="padding:64px 40px 0"><div class="anlu-carousel-wrap" style="max-width:1200px;margin:0 auto">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.Carousel" slides="{{ novedadesCarrusel }}" href="./tienda.html" hint-size="100%,480px"></x-import>
 </div></section>
+
+<!-- NOVEDADES -->
 <section id="novedades" style="padding:64px 40px 96px"><div style="max-width:1200px;margin:0 auto;display:grid;gap:32px">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SectionHeading" align="left" title="Novedades" subtitle="Lo más nuevo para ti" hint-size="400px,60px"></x-import>
 <div class="anlu-novedades-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
@@ -215,6 +232,8 @@ html, body { overflow-x: hidden; max-width: 100%; }
 </sc-for>
 </div>
 </div></section>
+
+<!-- ESENCIA DE ANLU -->
 <section style="background:#F8EFE2;padding:64px 40px"><div class="anlu-esencia-inner" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1.15fr;gap:48px;align-items:center">
 <div style="display:grid;gap:16px;justify-items:start">
 <span style="font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:#7D5BA6">La esencia de Anlu</span>
@@ -223,11 +242,27 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.Button" as="a" href="./tienda.html" variant="secondary" hint-size="160px,44px">Ver la tienda</x-import>
 </div>
 <div class="anlu-esencia-fotos" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+<sc-if value="{{ esenciaImgs.etiquetaAnlu }}" hint-placeholder-val="{{ true }}">
+<img src="{{ esenciaImgs.etiquetaAnlu }}" alt="Etiqueta Anlu" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;display:block">
+</sc-if>
+<sc-if value="{{ !esenciaImgs.etiquetaAnlu }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="3 / 4" label="Etiqueta Anlu" hint-size="100%,240px"></x-import>
+</sc-if>
+<sc-if value="{{ esenciaImgs.percheros }}" hint-placeholder-val="{{ true }}">
+<img src="{{ esenciaImgs.percheros }}" alt="Percheros Anlu" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;display:block">
+</sc-if>
+<sc-if value="{{ !esenciaImgs.percheros }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="3 / 4" label="Percheros" hint-size="100%,240px"></x-import>
+</sc-if>
+<sc-if value="{{ esenciaImgs.vestidoEspalda }}" hint-placeholder-val="{{ true }}">
+<img src="{{ esenciaImgs.vestidoEspalda }}" alt="Vestido espalda Anlu" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:14px;display:block">
+</sc-if>
+<sc-if value="{{ !esenciaImgs.vestidoEspalda }}" hint-placeholder-val="{{ false }}">
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.PhotoFrame" ratio="3 / 4" label="Vestido espalda" hint-size="100%,240px"></x-import>
+</sc-if>
 </div>
 </div></section>
+
 <footer style="background:#FDF6EE;border-top:1px solid #E7DFF0;padding:48px 40px;text-align:center;display:grid;gap:14px;justify-items:center">
 <div style="display:grid;justify-items:center"><span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1;color:#7D5BA6">Anlu</span><span style="font-size:10px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:#B8942B">Store</span></div>
 <p style="font-weight:300;font-size:13px;color:#6F6379;margin:0">WhatsApp +57 320 123 4567 · hola@anlustore.com · Envíos a toda Colombia</p>
@@ -243,19 +278,17 @@ function formatPrecio(n) {
   return '$' + Number(n).toLocaleString('es-CO');
 }
 
-// ─── localStorage bridge ─────────────────────────────────────────────────────
-// Sincroniza el selectionStore del DS con localStorage para persistir la selección
-// mientras la clienta navega entre index.html y tienda.html.
-const LS_KEY = 'anlu_seleccion';
+// Orden preferido de categorías
+const ORDEN_CATEGORIAS = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
 
+// ─── localStorage bridge ─────────────────────────────────────────────────────
+const LS_KEY = 'anlu_seleccion';
 function lsLoad() {
   try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
 }
 function lsSave(items) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch {}
 }
-
-// Esperamos a que el DS bundle cargue y exponga el selectionStore
 function initSelectionBridge(tries) {
   tries = tries || 0;
   const ns = window.AnluStoreDesignSystem_2c1944;
@@ -264,12 +297,8 @@ function initSelectionBridge(tries) {
     return;
   }
   const selection = ns.selection;
-  // Hidratar con lo que había guardado
   const saved = lsLoad();
-  if (saved.length > 0) {
-    saved.forEach(item => selection.add(item));
-  }
-  // Suscribirse para guardar cada cambio
+  if (saved.length > 0) saved.forEach(item => selection.add(item));
   selection.subscribe(() => lsSave(selection.getItems()));
 }
 initSelectionBridge();
@@ -288,17 +317,52 @@ class Component extends DCLogic {
   renderVals() {
     const { catalogo } = this.state;
 
-    const categorias = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'].map(label => ({
-      label,
-      href: './tienda.html?categoria=' + encodeURIComponent(label),
-    }));
+    // ── CAMBIO A: imágenes desde contenidoVisual (con fallback si no existe aún) ──
+    const cv = catalogo && catalogo.contenidoVisual;
+
+    const heroImgs = {
+      principal:  cv && cv.hero && cv.hero.principal   || '',
+      secundaria1: cv && cv.hero && cv.hero.secundaria1 || '',
+      secundaria2: cv && cv.hero && cv.hero.secundaria2 || '',
+    };
+
+    const esenciaImgs = {
+      etiquetaAnlu:  cv && cv.esenciaAnlu && cv.esenciaAnlu.etiquetaAnlu  || '',
+      percheros:     cv && cv.esenciaAnlu && cv.esenciaAnlu.percheros      || '',
+      vestidoEspalda: cv && cv.esenciaAnlu && cv.esenciaAnlu.vestidoEspalda || '',
+    };
+
+    // ── CAMBIO B: categorías filtradas por stock + imagen desde contenidoVisual ──
+    const categoriasCV = cv && cv.categorias || {};
+
+    // Calcular qué categorías tienen al menos un producto con stock > 0
+    const categoriasConStock = catalogo
+      ? new Set(
+          catalogo.productos
+            .filter(p => p.variantes && p.variantes.some(v => v.stock > 0))
+            .map(p => p.categoria)
+        )
+      : new Set();
+
+    // "Todas" las de la lista ordenada que tengan stock, con su imagen
+    const categorias = ORDEN_CATEGORIAS
+      .filter(label => !catalogo || categoriasConStock.has(label))
+      .map(label => ({
+        label,
+        href: './tienda.html?categoria=' + encodeURIComponent(label),
+        image: (categoriasCV[label]) || '',
+      }));
 
     if (!catalogo) {
-      return { categorias, novedadesCarrusel: [], productosNuevos: [] };
+      return {
+        heroImgs, esenciaImgs,
+        categorias: ORDEN_CATEGORIAS.map(label => ({ label, href: './tienda.html?categoria=' + encodeURIComponent(label), image: '' })),
+        novedadesCarrusel: [],
+        productosNuevos: [],
+      };
     }
 
-    // Carrusel: novedades del JSON, solo activo:true, ordenadas por orden
-    // El Carousel del DS navega a: href + ?prenda=<slide.product>
+    // Carrusel de novedades
     const novedadesCarrusel = catalogo.novedades
       .filter(n => n.activo)
       .sort((a, b) => a.orden - b.orden)
@@ -328,7 +392,7 @@ class Component extends DCLogic {
         };
       });
 
-    return { categorias, novedadesCarrusel, productosNuevos };
+    return { heroImgs, esenciaImgs, categorias, novedadesCarrusel, productosNuevos };
   }
 }
 </script>
