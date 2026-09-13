@@ -1,5 +1,8 @@
 # Directiva: Catálogo Dinámico + Estructura de Sitio
 
+> **Actualización 2026-09-13**: Se agregaron correcciones de responsividad mobile.
+> Ver sección "Responsividad Mobile" al final.
+
 ## Objetivo
 Reorganizar el sitio Anlu Store en dos páginas (index.html y tienda.html)
 y conectar ambas páginas dinámicamente al archivo `catalogo-mock.json`.
