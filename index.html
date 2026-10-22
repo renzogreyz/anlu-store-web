@@ -278,9 +278,6 @@ html, body { overflow-x: hidden; max-width: 100%; }
 const ANLU_PHONE = '573126045120';       // sin + ni espacios (formato wa.me)
 const ANLU_EMAIL = 'anlustorecol@gmail.com';
 
-// Sobreescribe el número que el bundle trae hardcodeado, para que el botón
-// "Escríbenos" del header y las tarjetas de producto usen siempre ANLU_PHONE.
-if (window.ANLU) window.ANLU.phone = ANLU_PHONE;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function formatPrecio(n) {
