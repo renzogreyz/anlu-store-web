@@ -210,7 +210,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <div class="anlu-productos-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
 <sc-for list="{{ productos }}" as="p" hint-placeholder-count="8">
 <div id="{{ p.anchor }}">
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.ProductCard" name="{{ p.name }}" price="{{ p.price }}" badge="{{ p.badge }}" category="{{ p.category }}" stock="{{ p.stock }}" colors="{{ p.colors }}" sizes="{{ p.sizes }}" image="{{ p.image }}" highlight="{{ p.highlight }}" hint-size="100%,480px"></x-import>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.ProductCard" product-id="{{ p.id }}" name="{{ p.name }}" price="{{ p.price }}" badge="{{ p.badge }}" category="{{ p.category }}" stock="{{ p.stock }}" colors="{{ p.colors }}" sizes="{{ p.sizes }}" image="{{ p.image }}" highlight="{{ p.highlight }}" hint-size="100%,480px"></x-import>
 </div>
 </sc-for>
 </div>
@@ -245,6 +245,40 @@ function formatPrecio(n) {
   return '$' + Number(n).toLocaleString('es-CO');
 }
 
+
+// ─── Normalización de celdas con varios valores (hoja Variantes) ─────────────
+// color: "Rojo, Negro" → ['Rojo','Negro'] (cada uno es un color elegible; comparten stock, fotos y talles de la fila).
+// talles: separados por coma, salto de línea o espacios. imagenes: coma o salto de línea, solo http*.
+const sinAcentos = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const unicos = lista => {
+  const vistos = new Set();
+  return lista.filter(x => {
+    const k = sinAcentos(x).toLowerCase();
+    if (vistos.has(k)) return false;
+    vistos.add(k);
+    return true;
+  });
+};
+const aLista = v => (v == null ? [] : Array.isArray(v) ? v : [v]);
+const parseColores = v => unicos(aLista(v).flatMap(x => String(x == null ? '' : x).split(',')).map(s => s.trim()).filter(Boolean));
+const TALLA_CORTA = /^(?:XXS|XS|S|M|L|XL|XXL|XXXL|\d{1,3})$/i;
+function parseTalles(v) {
+  const out = [];
+  aLista(v).forEach(x => {
+    const s = String(x == null ? '' : x).trim();
+    if (!s) return;
+    if (/[,\n\r]/.test(s)) { s.split(/[,\n\r]+/).forEach(t => out.push(t.trim())); return; }
+    // Solo con espacios se separa si TODAS las partes son tallas ("S M L", "28 30 32").
+    // Texto libre como "Talla 6" o "Talla única" queda como un único talle.
+    const partes = s.split(/\s+/);
+    if (partes.length > 1 && partes.every(p => TALLA_CORTA.test(p))) partes.forEach(p => out.push(p));
+    else out.push(s);
+  });
+  return unicos(out.filter(Boolean));
+}
+const parseImagenes = v => aLista(v).flatMap(x => String(x == null ? '' : x).split(/[,\n\r]+/)).map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
+const coloresDe = p => unicos(p.variantes.flatMap(v => parseColores(v.color)));
+
 const slug = s => 'prenda-' + s.toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -256,7 +290,11 @@ const ORDEN_CATEGORIAS = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans',
 const LS_KEY = 'anlu_seleccion';
 
 function lsLoad() {
-  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch { return []; }
+  // Selecciones viejas guardadas sin id no se pueden identificar: se ignoran.
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+    return Array.isArray(saved) ? saved.filter(i => i && i.id) : [];
+  } catch { return []; }
 }
 function lsSave(items) {
   try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch {}
@@ -351,9 +389,9 @@ class Component extends DCLogic {
         category: p.categoria,
         badge: p.nuevo ? 'Nuevo' : '',
         stock: varDefault.stock > 0 ? 'disponible' : 'agotado',
-        colors: p.variantes.map(v => v.color),
-        sizes: varDefault.talles,
-        image: varDefault.imagenes[0] || '',
+        colors: coloresDe(p),
+        sizes: parseTalles(varDefault.talles),
+        image: parseImagenes(varDefault.imagenes)[0] || '',
         anchor: slug(p.nombre),
         highlight: p.id === highlight,
       };

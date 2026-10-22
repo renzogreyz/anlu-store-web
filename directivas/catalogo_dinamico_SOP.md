@@ -88,7 +88,11 @@ Anne paginaWeb/
 ## Comportamiento de Selección Múltiple (localStorage)
 
 - Clave localStorage: `anlu_seleccion`
-- Valor: array JSON `[{ id, nombre, color, talla, precio }, ...]`
+- Valor: array JSON `[{ id, name, price, image, category, size, color }, ...]`
+- **La selección se identifica por `id` del producto + `color` + `size`, NUNCA por nombre.**
+  Dos productos distintos pueden llamarse igual (ej. "Blusa baby elisas": AN-002 Coral y AN-003 Celeste).
+  Identificar por nombre marcaba ambos como "Seleccionada" y no permitía elegirlos por separado.
+- Ítems viejos guardados sin `id` se ignoran (el bridge los filtra al leer y el store rechaza `add` sin id).
 - Al presionar "Seleccionar" en un ProductCard: push del item al array.
 - Al presionar "Finalizar compra" (SelectionBar): abrir WhatsApp con la lista completa.
 - Al cargar cualquier página: leer el localStorage y mostrar el contador en SelectionBar.
@@ -131,6 +135,28 @@ Total estimado: $XXX.XXX
   sirve correctamente los archivos. Para producción, cualquier servidor HTTP
   estático es suficiente.
 
+### Celdas con varios valores (hoja Variantes) — apaño conocido
+- `color` con comas ("Rojo, Negro, Blanco") → cada uno es un color elegible distinto (se recortan espacios, se descartan
+  vacíos y repetidos sin distinguir mayúsculas/acentos). Esos colores **comparten stock, fotos y talles de esa fila**
+  (limitación conocida, no resuelta a propósito). El mensaje de WhatsApp lleva solo el color que eligió la clienta.
+- `talles` (string o array): separados por coma, salto de línea o espacios; se descartan vacíos. Regla de espacios:
+  solo se separa por espacios si TODAS las partes son tallas ("S M L", "28 30 32"); texto libre como "Talla 6" o
+  "Talla única" queda como un único talle. Si hay un solo talle, el selector lo muestra ya elegido.
+  Nota: para varios talles con texto libre, usar comas o saltos de línea ("Talla 6, Talla 8").
+- `imagenes` (string o array): separadas por coma o salto de línea; se descarta todo lo que no empiece con `http(s)://`.
+  Nota: un link que contenga una coma se cortaría (no ocurre con los links de Drive actuales).
+- Los helpers (`parseColores`, `parseTalles`, `parseImagenes`, `coloresDe`) están duplicados en `index.html` y
+  `tienda.html`; si se cambia uno, cambiar el otro. Script: `scripts/datos_variantes_y_colores.py` (idempotente).
+- Se usa la primera variante para talles e imagen de la card (comportamiento previo); los colores son la unión de todas.
+
+### Círculos de color (ProductOptionsModal, copia raíz de `_ds_bundle.js`)
+- Búsqueda de nombre sin distinguir mayúsculas ni acentos (`SWATCHES` + `normColor`). Para sumar un color nuevo,
+  agregarlo a `SWATCHES`. Si no está, se prueba como color CSS (`CSS.supports`).
+- Nota: no usar el nombre tal cual como `background` (un nombre en español como "Celeste" no es CSS válido y el
+  círculo quedaba blanco/invisible). Color no reconocido: círculo con borde violeta y la inicial adentro (2-3 letras si
+  dos desconocidos comparten inicial). Todos los círculos llevan borde visible (los claros como Blanco/Crema se ven).
+- Prueba: `.tmp/cdp_datos_test.mjs` (catálogo simulado, Edge headless).
+
 ### Hallazgos del DS Bundle (críticos para no re-investigar)
 
 - **`selection` NO se expone** por defecto al namespace público `AnluStoreDesignSystem_2c1944`.
@@ -139,7 +165,11 @@ Total estimado: $XXX.XXX
   (la copia en `_ds/`, no los originales en `vidriera/_ds/`).
 
 - **`ProductCard`** acepta estas props:
-  - `name`, `price`, `image`, `badge`, `category`, `phone`, `stock`, `sizes`, `colors`, `highlight`
+  - `product-id` (llega como prop `productId`), `name`, `price`, `image`, `badge`, `category`, `phone`, `stock`, `sizes`, `colors`, `highlight`
+  - `product-id` es obligatorio en la práctica: es la identidad de la selección. Si falta, la card cae al `name`
+    (reintroduce el bug de nombres duplicados). Pasar siempre `product-id="{{ p.id }}"`.
+  - Usar el atributo en kebab-case (`product-id`), no camelCase: el runtime DC parsea el HTML dos veces y los
+    atributos camelCase se minusculizan en el primer parseo.
   - `sizes`: array de strings ej. `['S','M','L']`
   - `colors`: array de strings ej. `['Lila','Beige']`
   - `stock`: string `'disponible'` o `'agotado'`
@@ -154,6 +184,19 @@ Total estimado: $XXX.XXX
 
 - **`SelectionBar`**: recibe solo `phone`. Muestra el drawer de selección.
   Internamente usa `__ds_scope.selection` (el store en memoria).
+
+- **Store `selection` (API por id)**: `keyOf(item)` = `id|color|size`; `isSelected(id)`; `add(item)` (ignora si no hay id);
+  `remove(key)` (una prenda concreta, usado por el panel "Finalizar compra"); `removeById(id)` (deseleccionar desde la card);
+  `toggle(item)`. El cambio se aplica solo en la copia raíz `_ds/`. Las copias legacy `tienda/_ds` y `vidriera/_ds`
+  usan datos estáticos sin id: **no tocarlas** (quedarían sin poder seleccionar). Script: `scripts/seleccion_por_id.py` (idempotente).
+
+- **Trampa conocida — NO sobreescribir `window.ANLU.phone` desde las páginas**: la línea
+  `if (window.ANLU) window.ANLU.phone = ANLU_PHONE;` se reportó como causa de que las imágenes del hero desaparecieran
+  (se quitó en el commit 9154591). El teléfono se define en `phone=` del `SelectionBar` y en el bundle; no agregar overrides.
+
+- **Prueba E2E de selección**: `.tmp/cdp_seleccion_test.mjs` (Edge headless + CDP, levanta su propio `http.server`) cubre
+  Coral/Celeste por separado, panel, mensaje de WhatsApp, selección vieja sin id y persistencia. Nota: la card recuerda la
+  última talla/color elegidos, así que al re-seleccionar no vuelve a abrir el modal.
 
 - **Bridge localStorage**: el `initSelectionBridge()` debe llamarse ANTES de que
   el componente monte. Espera activamente (polling 100ms) a que `AnluStoreDesignSystem_2c1944.selection`

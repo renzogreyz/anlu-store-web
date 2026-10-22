@@ -92,19 +92,30 @@ const selection = {
   setPhone(p) {
     if (p) state.phone = p;
   },
-  isSelected(name) {
-    return state.items.some(i => i.name === name);
+  // Identidad de una prenda seleccionada: id del producto + color + talla elegidos.
+  keyOf(i) {
+    return `${i.id}|${i.color}|${i.size}`;
+  },
+  isSelected(id) {
+    return state.items.some(i => i.id === id);
   },
   add(item) {
-    state.items = [...state.items.filter(i => i.name !== item.name), item];
+    // Sin id no se puede identificar la prenda (p. ej. selecciones viejas): se ignora.
+    if (!item || !item.id) return;
+    const key = selection.keyOf(item);
+    state.items = [...state.items.filter(i => selection.keyOf(i) !== key), item];
     emit();
   },
-  remove(name) {
-    state.items = state.items.filter(i => i.name !== name);
+  remove(key) {
+    state.items = state.items.filter(i => selection.keyOf(i) !== key);
+    emit();
+  },
+  removeById(id) {
+    state.items = state.items.filter(i => i.id !== id);
     emit();
   },
   toggle(item) {
-    this.isSelected(item.name) ? this.remove(item.name) : this.add(item);
+    this.isSelected(item.id) ? this.removeById(item.id) : this.add(item);
   },
   clear() {
     state.items = [];
@@ -381,14 +392,84 @@ try { (() => {
 const SWATCHES = {
   'Lila': '#C4B5FD',
   'Violeta': '#7D5BA6',
+  'Morado': '#5B2C83',
+  'Lavanda': '#D9CCF2',
+  'Fucsia': '#D81B8C',
+  'Rosa': '#F4A6C0',
+  'Rosado': '#F4A6C0',
+  'Coral': '#FF7F6B',
+  'Salmón': '#FA9A85',
+  'Durazno': '#FFCBA4',
+  'Rojo': '#D32F2F',
+  'Vino': '#722F37',
+  'Bordó': '#800020',
+  'Naranja': '#F28C28',
+  'Mostaza': '#E1AD01',
+  'Amarillo': '#F6D743',
+  'Amarillo pastel': '#F8E8A6',
+  'Dorado': '#D4AF37',
+  'Verde': '#3E9B5B',
+  'Verde agua': '#8FD9C8',
+  'Menta': '#A8E6CF',
+  'Turquesa': '#1FB5AD',
+  'Celeste': '#9ED8F0',
+  'Azul claro': '#BFD3E6',
+  'Azul': '#2F5DBA',
+  'Azul marino': '#1F2A5A',
   'Crema': '#FDF6EE',
   'Marfil': '#F4EDE2',
+  'Hueso': '#E9E2D0',
   'Perla': '#EDE9F2',
+  'Beige': '#D8C3A5',
+  'Camel': '#C19A6B',
+  'Café': '#6F4E37',
+  'Marrón': '#7B4A2D',
+  'Chocolate': '#5A3A29',
+  'Plateado': '#C0C0C0',
+  'Gris': '#9A9AA5',
   'Negro': '#2E2434',
-  'Azul claro': '#BFD3E6',
-  'Dorado': '#D4AF37',
+  'Blanco': '#FFFFFF',
   'Floral': 'linear-gradient(135deg,#EDE1FF 0%,#C4B5FD 50%,#FDF6EE 100%)'
 };
+
+/* Búsqueda sin distinguir mayúsculas ni acentos ("SALMON", "salmón", "Salmon"). */
+const normColor = s => String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/\s+/g, ' ');
+const SWATCH_INDEX = {};
+Object.keys(SWATCHES).forEach(k => { SWATCH_INDEX[normColor(k)] = SWATCHES[k]; });
+/* Valor CSS del color, o null si el nombre no se reconoce (acepta también nombres CSS en inglés). */
+function swatchFor(name) {
+  const hit = SWATCH_INDEX[normColor(name)];
+  if (hit) return hit;
+  const raw = String(name == null ? '' : name).trim();
+  if (raw && typeof CSS !== 'undefined' && CSS.supports && CSS.supports('color', raw)) return raw;
+  return null;
+}
+/* Color no reconocido: círculo con borde visible + inicial (más letras si dos colores desconocidos comparten inicial). */
+function swatchInitial(name, all) {
+  if (swatchFor(name)) return null;
+  const me = String(name).trim().toUpperCase();
+  const otros = (all || []).filter(c => !swatchFor(c)).map(c => String(c).trim().toUpperCase());
+  const max = Math.min(3, me.length);
+  for (let n = 1; n <= max; n++) {
+    if (otros.filter(o => o.slice(0, n) === me.slice(0, n)).length <= 1) return me.slice(0, n);
+  }
+  return me.slice(0, max);
+}
+function swatchStyle(name) {
+  const bg = swatchFor(name);
+  if (bg) return { background: bg, boxShadow: 'inset 0 0 0 1px rgba(46,36,52,.35)' };
+  return {
+    background: 'var(--lilac-50)',
+    boxShadow: 'inset 0 0 0 2px var(--violet-700)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'var(--font-sans)',
+    fontSize: '12px',
+    fontWeight: 500,
+    color: 'var(--violet-700)'
+  };
+}
 
 /** Modal to pick talla and color before comprando o seleccionando una prenda. */
 function ProductOptionsModal({
@@ -424,7 +505,7 @@ function Dialog({
   onConfirm,
   onClose
 }) {
-  const [size, setSize] = React.useState(initial.size || null);
+  const [size, setSize] = React.useState(initial.size || (sizes.length === 1 ? sizes[0] : null));
   const [color, setColor] = React.useState(initial.color || null);
   React.useEffect(() => {
     const esc = e => {
@@ -573,10 +654,9 @@ function Dialog({
       width: '100%',
       height: '100%',
       borderRadius: 'var(--radius-circle)',
-      background: SWATCHES[c] || c,
-      boxShadow: 'inset 0 0 0 1px rgba(46,36,52,.08)'
+      ...swatchStyle(c)
     }
-  }))))), /*#__PURE__*/React.createElement(__ds_scope.Button, {
+  }, swatchInitial(c, colors)))))), /*#__PURE__*/React.createElement(__ds_scope.Button, {
     fullWidth: true,
     disabled: !ready,
     onClick: () => onConfirm({
@@ -893,6 +973,7 @@ function ProductCard({
   category,
   phone,
   stock = 'disponible',
+  productId,
   sizes,
   colors,
   highlight,
@@ -904,7 +985,9 @@ function ProductCard({
   const [options, setOptions] = React.useState(null);
   const [modal, setModal] = React.useState(null); // 'comprar' | 'seleccionar' | null
   const agotado = stock === 'agotado';
-  const selected = store.isSelected(name);
+  // Identidad de la selección: id del producto (si no llega, cae al nombre para no romper cards sin id).
+  const pid = productId != null && productId !== '' ? productId : name;
+  const selected = store.isSelected(pid);
   const waHref = opts => {
     const detail = opts ? ` en talla ${opts.size}, color ${opts.color}` : '';
     const text = `¡Hola Anlu! Quiero comprar "${name}"${detail}. ¿Me confirmas disponibilidad y el envío?`;
@@ -912,6 +995,7 @@ function ProductCard({
   };
   const doComprar = opts => window.open(waHref(opts), '_blank', 'noopener');
   const doSeleccionar = opts => __ds_scope.selection.toggle({
+    id: pid,
     name,
     price,
     image,
@@ -922,7 +1006,7 @@ function ProductCard({
   const handle = action => {
     if (agotado) return;
     if (action === 'seleccionar' && selected) {
-      __ds_scope.selection.remove(name);
+      __ds_scope.selection.removeById(pid);
       return;
     }
     if (!options) {
@@ -1317,7 +1401,7 @@ function SelectionBar({
       alignContent: 'start'
     }
   }, items.map(i => /*#__PURE__*/React.createElement("div", {
-    key: i.name,
+    key: __ds_scope.selection.keyOf(i),
     style: {
       display: 'grid',
       gridTemplateColumns: '64px 1fr auto',
@@ -1361,7 +1445,7 @@ function SelectionBar({
       color: 'var(--text-muted)'
     }
   }, "COP"))), /*#__PURE__*/React.createElement("button", {
-    onClick: () => __ds_scope.selection.remove(i.name),
+    onClick: () => __ds_scope.selection.remove(__ds_scope.selection.keyOf(i)),
     "aria-label": `Quitar ${i.name}`,
     style: {
       border: 0,
