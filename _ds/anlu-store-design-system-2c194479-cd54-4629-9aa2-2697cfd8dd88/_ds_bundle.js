@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"AnluStoreDesignSystem_2c1944","components":[{"name":"Carousel","sourcePath":"components/commerce/Carousel.jsx"},{"name":"CategoryCircle","sourcePath":"components/commerce/CategoryCircle.jsx"},{"name":"FeatureItem","sourcePath":"components/commerce/FeatureItem.jsx"},{"name":"ProductCard","sourcePath":"components/commerce/ProductCard.jsx"},{"name":"ProductOptionsModal","sourcePath":"components/commerce/ProductOptionsModal.jsx"},{"name":"PromoBanner","sourcePath":"components/commerce/PromoBanner.jsx"},{"name":"SelectionBar","sourcePath":"components/commerce/SelectionBar.jsx"},{"name":"WhatsAppButton","sourcePath":"components/commerce/WhatsAppButton.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"GoldDivider","sourcePath":"components/core/GoldDivider.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"PhotoFrame","sourcePath":"components/core/PhotoFrame.jsx"},{"name":"SectionHeading","sourcePath":"components/core/SectionHeading.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"}],"sourceHashes":{"components/commerce/Carousel.jsx":"779857fa4056","components/commerce/CategoryCircle.jsx":"a95be61eea05","components/commerce/FeatureItem.jsx":"40b76b70f041","components/commerce/ProductCard.jsx":"20ebc7a8dab2","components/commerce/ProductOptionsModal.jsx":"0ca20c91a964","components/commerce/PromoBanner.jsx":"74f28961c339","components/commerce/SelectionBar.jsx":"a36b7edcd578","components/commerce/WhatsAppButton.jsx":"3c12ce356bed","components/commerce/selectionStore.js":"dde84b35ff42","components/core/Badge.jsx":"95578b206d03","components/core/Button.jsx":"55384a85c673","components/core/GoldDivider.jsx":"a1828ff34a78","components/core/Icon.jsx":"cf4495327432","components/core/IconButton.jsx":"ad044b10ba28","components/core/PhotoFrame.jsx":"de56d905042b","components/core/SectionHeading.jsx":"bfed09b58f9d","components/forms/Input.jsx":"fc6c9441bdb9","ui_kits/anlu-store/Catalogo.jsx":"458b2c8e7e7a","ui_kits/anlu-store/Chrome.jsx":"c835635a6d4a","ui_kits/anlu-store/Home.jsx":"0c1f5142f161","ui_kits/anlu-store/data.js":"929fbc376067"},"inlinedExternals":[],"unexposedExports":[{"name":"selection","sourcePath":"components/commerce/selectionStore.js"},{"name":"useSelection","sourcePath":"components/commerce/selectionStore.js"}]} */
+﻿/* @ds-bundle: {"format":4,"namespace":"AnluStoreDesignSystem_2c1944","components":[{"name":"Carousel","sourcePath":"components/commerce/Carousel.jsx"},{"name":"CategoryCircle","sourcePath":"components/commerce/CategoryCircle.jsx"},{"name":"FeatureItem","sourcePath":"components/commerce/FeatureItem.jsx"},{"name":"ProductCard","sourcePath":"components/commerce/ProductCard.jsx"},{"name":"ProductOptionsModal","sourcePath":"components/commerce/ProductOptionsModal.jsx"},{"name":"PromoBanner","sourcePath":"components/commerce/PromoBanner.jsx"},{"name":"SelectionBar","sourcePath":"components/commerce/SelectionBar.jsx"},{"name":"WhatsAppButton","sourcePath":"components/commerce/WhatsAppButton.jsx"},{"name":"Badge","sourcePath":"components/core/Badge.jsx"},{"name":"Button","sourcePath":"components/core/Button.jsx"},{"name":"GoldDivider","sourcePath":"components/core/GoldDivider.jsx"},{"name":"Icon","sourcePath":"components/core/Icon.jsx"},{"name":"IconButton","sourcePath":"components/core/IconButton.jsx"},{"name":"PhotoFrame","sourcePath":"components/core/PhotoFrame.jsx"},{"name":"SectionHeading","sourcePath":"components/core/SectionHeading.jsx"},{"name":"Input","sourcePath":"components/forms/Input.jsx"}],"sourceHashes":{"components/commerce/Carousel.jsx":"779857fa4056","components/commerce/CategoryCircle.jsx":"a95be61eea05","components/commerce/FeatureItem.jsx":"40b76b70f041","components/commerce/ProductCard.jsx":"20ebc7a8dab2","components/commerce/ProductOptionsModal.jsx":"0ca20c91a964","components/commerce/PromoBanner.jsx":"74f28961c339","components/commerce/SelectionBar.jsx":"a36b7edcd578","components/commerce/WhatsAppButton.jsx":"3c12ce356bed","components/commerce/selectionStore.js":"dde84b35ff42","components/core/Badge.jsx":"95578b206d03","components/core/Button.jsx":"55384a85c673","components/core/GoldDivider.jsx":"a1828ff34a78","components/core/Icon.jsx":"cf4495327432","components/core/IconButton.jsx":"ad044b10ba28","components/core/PhotoFrame.jsx":"de56d905042b","components/core/SectionHeading.jsx":"bfed09b58f9d","components/forms/Input.jsx":"fc6c9441bdb9","ui_kits/anlu-store/Catalogo.jsx":"458b2c8e7e7a","ui_kits/anlu-store/Chrome.jsx":"c835635a6d4a","ui_kits/anlu-store/Home.jsx":"0c1f5142f161","ui_kits/anlu-store/data.js":"929fbc376067"},"inlinedExternals":[],"unexposedExports":[{"name":"selection","sourcePath":"components/commerce/selectionStore.js"},{"name":"useSelection","sourcePath":"components/commerce/selectionStore.js"}]} */
 
 (() => {
 
@@ -16,7 +16,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
  * Anlu has no cart, no checkout and no accounts.
  */
 function WhatsAppButton({
-  phone = '573201234567',
+  phone = '573126045120',
   product,
   message,
   variant = 'primary',
@@ -72,7 +72,7 @@ try { (() => {
 // Lives outside React so every mounted island (cards, floating bar, drawer) stays in sync.
 const state = {
   items: [],
-  phone: '573201234567'
+  phone: '573126045120'
 };
 const listeners = new Set();
 function emit() {
@@ -1893,7 +1893,7 @@ function Footer() {
       fontSize: 'var(--fs-body-s)',
       color: 'var(--text-muted)'
     }
-  }, "WhatsApp +57 320 123 4567"), /*#__PURE__*/React.createElement("span", {
+  }, "WhatsApp +57 312 604 5120"), /*#__PURE__*/React.createElement("span", {
     style: {
       font: 'var(--type-body)',
       fontSize: 'var(--fs-body-s)',
@@ -1905,7 +1905,7 @@ function Footer() {
       fontSize: 'var(--fs-body-s)',
       color: 'var(--text-muted)'
     }
-  }, "hola@anlustore.com"), /*#__PURE__*/React.createElement("span", {
+  }, "anlustorecol@gmail.com"), /*#__PURE__*/React.createElement("span", {
     style: {
       font: 'var(--type-body)',
       fontSize: 'var(--fs-body-s)',
@@ -2386,7 +2386,7 @@ Object.assign(window, {
 // ui_kits/anlu-store/data.js
 try { (() => {
 window.ANLU = {
-  phone: '573201234567',
+  phone: '573126045120',
   categories: ['Blusas', 'Bodys', 'Trajes de baño', 'Vestidos', 'Jeans', 'Pijamas'],
   products: [{
     name: 'Vestido Lila Satinado',

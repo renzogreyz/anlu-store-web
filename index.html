@@ -265,14 +265,23 @@ html, body { overflow-x: hidden; max-width: 100%; }
 
 <footer style="background:#FDF6EE;border-top:1px solid #E7DFF0;padding:48px 40px;text-align:center;display:grid;gap:14px;justify-items:center">
 <div style="display:grid;justify-items:center"><span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:300;font-size:26px;line-height:1;color:#7D5BA6">Anlu</span><span style="font-size:10px;font-weight:500;letter-spacing:.34em;text-transform:uppercase;color:#B8942B">Store</span></div>
-<p style="font-weight:300;font-size:13px;color:#6F6379;margin:0">WhatsApp +57 320 123 4567 · hola@anlustore.com · Envíos a toda Colombia</p>
+<p style="font-weight:300;font-size:13px;color:#6F6379;margin:0">WhatsApp +57 312 604 5120 · anlustorecol@gmail.com · Envíos a toda Colombia</p>
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.GoldDivider" motif="sparkles" width="240px" hint-size="240px,16px"></x-import>
 <p style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6F6379;margin:0">© 2026 Anlu Store · Todos los derechos reservados</p>
 </footer>
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SelectionBar" phone="573201234567" hint-size="0px,0px"></x-import>
+<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SelectionBar" phone="573126045120" hint-size="0px,0px"></x-import>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
+// ─── Datos de contacto ──────────────────────────────────────────────────────
+// Editá solo estos dos valores si cambian el número o el correo.
+const ANLU_PHONE = '573126045120';       // sin + ni espacios (formato wa.me)
+const ANLU_EMAIL = 'anlustorecol@gmail.com';
+
+// Sobreescribe el número que el bundle trae hardcodeado, para que el botón
+// "Escríbenos" del header y las tarjetas de producto usen siempre ANLU_PHONE.
+if (window.ANLU) window.ANLU.phone = ANLU_PHONE;
+
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function formatPrecio(n) {
   return '$' + Number(n).toLocaleString('es-CO');

@@ -1,4 +1,4 @@
-# Anlu Store — Design System
+﻿# Anlu Store — Design System
 
 **Anlu Store** es un emprendimiento de indumentaria femenina. El sitio es una **vidriera
 digital**: muestra el catálogo organizado por categorías y cada prenda termina en un botón
@@ -178,5 +178,5 @@ categoría → suben 3px y el anillo se vuelve dorado. Nunca solo opacidad.
 3. **Fotografía:** todo es placeholder `PhotoFrame`. Hacen falta fotos reales de producto
    (3/4) y 2–3 editoriales.
 4. **Íconos:** Lucide como sustituto del set no provisto.
-5. **Teléfono de WhatsApp:** `+57 320 123 4567` es de muestra; reemplazar en `data.js` y en el
+5. **Teléfono de WhatsApp:** `+57 312 604 5120` es de muestra; reemplazar en `data.js` y en el
    default de `WhatsAppButton`.
