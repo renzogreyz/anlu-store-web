@@ -1,5 +1,12 @@
 # Directiva: Catálogo Dinámico + Estructura de Sitio
 
+> **Actualización 2026-10-26 (Etapa 6 del panel)**: la tarjeta de prenda, la ventana de talla/color
+> y la barra de selección ahora son **archivos propios del sitio** (`js/pedido.js` y `js/tienda-ui.js`),
+> con galería por color, colores y tallas sin stock en gris, combos en el pedido y "Editar compra".
+> `ProductCard`, `ProductOptionsModal` y `SelectionBar` del design system **ya no se usan**.
+> Todo está en **`directivas/pedido_editable_SOP.md`**. Lo de abajo sobre `precioOferta` y el parche
+> `priceBefore` queda como historia: hoy el precio tachado lo dibuja `js/tienda-ui.js`.
+
 > **Actualización 2026-10-26 (Etapa 4C del panel)**: el sitio ya consume lo que carga la dueña
 > desde el panel (`configuracion.anluonline.com`).
 >

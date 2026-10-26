@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anlu Store — Inicio</title>
 <script src="./support.js"></script>
+<!-- Pedido editable (Etapa 6): lógica y piezas visuales propias del sitio -->
+<script src="./js/pedido.js"></script>
+<script src="./js/tienda-ui.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════
    ANLU STORE — CORRECCIONES MOBILE (index.html)
@@ -145,24 +148,6 @@ html, body { overflow-x: hidden; max-width: 100%; }
   }
 }
 
-/* ── MODAL TALLA/COLOR ───────────────────────────────────────── */
-@media (max-width: 480px) {
-  div[style*="position: fixed"][style*="z-index: 80"] > div,
-  div[style*="position:fixed"][style*="zIndex: 80"] > div {
-    width: calc(100vw - 32px) !important;
-    max-width: 100% !important;
-  }
-}
-
-/* ── SELECTION BAR ───────────────────────────────────────────── */
-@media (max-width: 480px) {
-  aside[style*="width: 420px"],
-  aside[style*="width:420px"] {
-    width: 100vw !important;
-    max-width: 100vw !important;
-  }
-}
-
 /* ── Utilidad global ─────────────────────────────────────────── */
 @media (max-width: 480px) {
   [style*="max-width:420px"],
@@ -241,7 +226,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SectionHeading" align="left" title="Novedades" subtitle="Lo más nuevo para ti" hint-size="400px,60px"></x-import>
 <div class="anlu-novedades-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
 <sc-for list="{{ productosNuevos }}" as="p" hint-placeholder-count="4">
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.ProductCard" product-id="{{ p.id }}" name="{{ p.name }}" price="{{ p.price }}" price-before="{{ p.priceBefore }}" badge="{{ p.badge }}" category="{{ p.category }}" stock="{{ p.stock }}" colors="{{ p.colors }}" sizes="{{ p.sizes }}" image="{{ p.image }}" hint-size="100%,480px"></x-import>
+<x-import component-from-global-scope="AnluTienda.ProductCard" producto-id="{{ p.id }}" hint-size="100%,480px"></x-import>
 </sc-for>
 </div>
 </div></section>
@@ -272,7 +257,7 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <span style="font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#B8942B">Ahorras {{ c.ahorro }}</span>
 </sc-if>
 <p style="font-weight:300;font-size:13px;line-height:1.6;color:#4B4055;margin:0">{{ c.detallePrendas }}</p>
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.Button" as="a" href="{{ c.waHref }}" target="_blank" hint-size="100%,44px">Consultar por WhatsApp</x-import>
+<x-import component-from-global-scope="AnluTienda.BotonesCombo" combo-id="{{ c.id }}" hint-size="100%,96px"></x-import>
 </div>
 </article>
 </sc-for>
@@ -316,14 +301,13 @@ html, body { overflow-x: hidden; max-width: 100%; }
 <x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.GoldDivider" motif="sparkles" width="240px" hint-size="240px,16px"></x-import>
 <p style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6F6379;margin:0">© 2026 Anlu Store · Todos los derechos reservados</p>
 </footer>
-<x-import component-from-global-scope="AnluStoreDesignSystem_2c1944.SelectionBar" phone="573126045120" hint-size="0px,0px"></x-import>
+<x-import component-from-global-scope="AnluTienda.PedidoBar" hint-size="0px,0px"></x-import>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 // ─── Datos de contacto ──────────────────────────────────────────────────────
-// Editá solo estos dos valores si cambian el número o el correo.
-const ANLU_PHONE = '573126045120';       // sin + ni espacios (formato wa.me)
-const ANLU_EMAIL = 'anlustorecol@gmail.com';
+// El número de WhatsApp de los pedidos está en js/pedido.js (TELEFONO).
+// Los botones "Escríbenos" del encabezado usan el del design system.
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -357,82 +341,18 @@ function textosDe(catalogo) {
   return out;
 }
 
-// ─── Precio de la tarjeta: si hay rebaja vigente, el viejo va tachado ────────
-function precioDe(p) {
-  const hayOferta = typeof p.precioOferta === 'number' && p.precioOferta > 0 && p.precioOferta < p.precio;
-  return {
-    price: formatPrecio(hayOferta ? p.precioOferta : p.precio),
-    priceBefore: hayOferta ? formatPrecio(p.precio) : '',
-    enOferta: hayOferta,
-  };
-}
-
 // ─── Id de la prenda a la que lleva un banner del carrusel ───────────────────
 // El panel manda `productoId`; el flujo viejo mandaba `id_producto`.
 const prendaDeBanner = n => n.productoId || n.id_producto || '';
 
 
-// ─── Normalización de celdas con varios valores (hoja Variantes) ─────────────
-// color: "Rojo, Negro" → ['Rojo','Negro'] (cada uno es un color elegible; comparten stock, fotos y talles de la fila).
-// talles: separados por coma, salto de línea o espacios. imagenes: coma o salto de línea, solo http*.
-const sinAcentos = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-const unicos = lista => {
-  const vistos = new Set();
-  return lista.filter(x => {
-    const k = sinAcentos(x).toLowerCase();
-    if (vistos.has(k)) return false;
-    vistos.add(k);
-    return true;
-  });
-};
-const aLista = v => (v == null ? [] : Array.isArray(v) ? v : [v]);
-const parseColores = v => unicos(aLista(v).flatMap(x => String(x == null ? '' : x).split(',')).map(s => s.trim()).filter(Boolean));
-const TALLA_CORTA = /^(?:XXS|XS|S|M|L|XL|XXL|XXXL|\d{1,3})$/i;
-function parseTalles(v) {
-  const out = [];
-  aLista(v).forEach(x => {
-    const s = String(x == null ? '' : x).trim();
-    if (!s) return;
-    if (/[,\n\r]/.test(s)) { s.split(/[,\n\r]+/).forEach(t => out.push(t.trim())); return; }
-    // Solo con espacios se separa si TODAS las partes son tallas ("S M L", "28 30 32").
-    // Texto libre como "Talla 6" o "Talla única" queda como un único talle.
-    const partes = s.split(/\s+/);
-    if (partes.length > 1 && partes.every(p => TALLA_CORTA.test(p))) partes.forEach(p => out.push(p));
-    else out.push(s);
-  });
-  return unicos(out.filter(Boolean));
-}
-const parseImagenes = v => aLista(v).flatMap(x => String(x == null ? '' : x).split(/[,\n\r]+/)).map(s => s.trim()).filter(s => /^https?:\/\//i.test(s));
-const coloresDe = p => unicos(p.variantes.flatMap(v => parseColores(v.color)));
-
 // Orden preferido de categorías
 const ORDEN_CATEGORIAS = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
 
-// ─── localStorage bridge ─────────────────────────────────────────────────────
-const LS_KEY = 'anlu_seleccion';
-function lsLoad() {
-  // Selecciones viejas guardadas sin id no se pueden identificar: se ignoran.
-  try {
-    const saved = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    return Array.isArray(saved) ? saved.filter(i => i && i.id) : [];
-  } catch { return []; }
-}
-function lsSave(items) {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(items)); } catch {}
-}
-function initSelectionBridge(tries) {
-  tries = tries || 0;
-  const ns = window.AnluStoreDesignSystem_2c1944;
-  if (!ns || !ns.selection) {
-    if (tries < 100) setTimeout(() => initSelectionBridge(tries + 1), 100);
-    return;
-  }
-  const selection = ns.selection;
-  const saved = lsLoad();
-  if (saved.length > 0) saved.forEach(item => selection.add(item));
-  selection.subscribe(() => lsSave(selection.getItems()));
-}
-initSelectionBridge();
+// ─── Pedido ──────────────────────────────────────────────────────────────────
+// El pedido (prendas y combos elegidos) lo maneja js/pedido.js y se guarda en
+// localStorage ("anlu_pedido"), así sigue ahí al pasar de Inicio a Tienda.
+const pedido = () => window.AnluPedido && window.AnluPedido.store;
 
 // ─── Componente principal ────────────────────────────────────────────────────
 class Component extends DCLogic {
@@ -441,7 +361,10 @@ class Component extends DCLogic {
   componentDidMount() {
     fetch('https://raw.githubusercontent.com/renzogreyz/anlu-store-data/refs/heads/main/catalogo.json')
       .then(r => r.json())
-      .then(data => this.setState({ catalogo: data }))
+      .then(data => {
+        if (pedido()) pedido().setCatalogo(data);
+        this.setState({ catalogo: data });
+      })
       .catch(err => console.error('Error cargando catálogo:', err));
   }
 
@@ -525,25 +448,11 @@ class Component extends DCLogic {
         };
       });
 
-    // Sección Novedades: solo productos con nuevo:true
+    // Sección Novedades: solo productos con nuevo:true.
+    // La tarjeta (AnluTienda.ProductCard) arma foto, precio, colores y stock sola.
     const productosNuevos = catalogo.productos
       .filter(p => p.nuevo)
-      .map(p => {
-        const varDefault = p.variantes[0];
-        const precio = precioDe(p);
-        return {
-          id: p.id,
-          name: p.nombre,
-          price: precio.price,
-          priceBefore: precio.priceBefore,
-          category: p.categoria,
-          badge: precio.enOferta ? 'Oferta' : 'Nuevo',
-          stock: varDefault.stock > 0 ? 'disponible' : 'agotado',
-          colors: coloresDe(p),
-          sizes: parseTalles(varDefault.talles),
-          image: parseImagenes(varDefault.imagenes)[0] || '',
-        };
-      });
+      .map(p => ({ id: p.id }));
 
     // Combos vigentes (el JSON ya trae solo los activos y dentro de fecha)
     const combos = listaCombos.map(c => {
@@ -552,7 +461,6 @@ class Component extends DCLogic {
       const detalle = prendas
         .map(x => (x.cantidad > 1 ? x.cantidad + ' × ' : '') + x.nombre)
         .join(' + ');
-      const texto = '¡Hola Anlu! Me interesa el combo "' + c.nombre + '". ¿Me confirmas disponibilidad y el envío?';
       return {
         id: c.id,
         nombre: c.nombre,
@@ -562,7 +470,6 @@ class Component extends DCLogic {
         precioSeparado: ahorro > 0 ? formatPrecio(c.precioSeparado) : '',
         ahorro: ahorro > 0 ? formatPrecio(ahorro) : '',
         detallePrendas: detalle ? 'Incluye: ' + detalle : '',
-        waHref: 'https://wa.me/' + ANLU_PHONE + '?text=' + encodeURIComponent(texto),
       };
     });
 
