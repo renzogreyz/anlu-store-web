@@ -1,12 +1,33 @@
 # Directiva: Catálogo Dinámico + Estructura de Sitio
 
-> **Actualización 2026-09-13**: Se agregaron correcciones de responsividad mobile.
-> Ver sección "Responsividad Mobile" al final.
+> **Actualización 2026-10-26 (Etapa 4C del panel)**: el sitio ya consume lo que carga la dueña
+> desde el panel (`configuracion.anluonline.com`).
 >
-> **Actualización 2026-09-13 (tarde)**: Cambios A/B/C implementados.
-> - `contenidoVisual` aún NO existe en el JSON de GitHub. El código lo lee con fallback graceful — cuando el campo aparezca, las imágenes se mostrarán automáticamente sin cambios de código.
-> - Claves esperadas: `contenidoVisual.hero.{principal,secundaria1,secundaria2}`, `contenidoVisual.esenciaAnlu.{etiquetaAnlu,percheros,vestidoEspalda}`, `contenidoVisual.categorias.{<nombre_categoria>}`.
-> - Categorías en Inicio ahora se filtran por stock (igual que en Tienda).
+> - **`contenidoTexto`**: la barra de anuncios, la frase, el título y el subtítulo del Inicio,
+>   el título y el texto de "La esencia de Anlu" y el contacto del pie salen del JSON.
+>   Si un texto falta o llega vacío, se usa el de siempre (`TEXTOS_POR_DEFECTO` en cada página):
+>   la página nunca queda con un hueco.
+>   El **título del Inicio resalta su última palabra en violeta**, como el diseño original
+>   ("Ropa que realza tu *esencia*"), sea cual sea el texto que escriba la dueña.
+> - **`precioOferta`**: cuando una prenda tiene rebaja vigente, la tarjeta muestra el precio
+>   viejo **tachado** y al lado el nuevo, con la etiqueta **"Oferta"** en lugar de "Nuevo".
+>   Requiere la prop `priceBefore` de `ProductCard` (ver "Parche del design system").
+> - **`combos`**: sección propia **"Combos"** en el Inicio (`#combos`), después de Novedades.
+>   Cada combo muestra foto (o marco si no tiene), nombre, descripción, precio con el valor por
+>   separado tachado, **"Ahorras $X"**, qué prendas incluye y un botón de WhatsApp con el combo
+>   nombrado en el mensaje. Si no hay combos, la sección no se renderiza.
+> - **`novedades[].productoId`**: el panel manda `productoId` (y `comboId`); el flujo viejo de
+>   la planilla mandaba `id_producto`. El carrusel lee **los dos** (`productoId || id_producto`),
+>   así que funciona con cualquiera de los dos orígenes. Un banner con `comboId` baja hasta la
+>   sección de Combos en vez de ir a la Tienda.
+> - **`tallesDetalle`**: todavía NO se usa. `talles` ya trae solo las tallas con stock, que es lo
+>   que la clienta puede pedir. `tallesDetalle` serviría para mostrar también las tallas agotadas
+>   (tachadas); queda pendiente como mejora opcional.
+>
+> **Parche del design system** (`_ds/.../_ds_bundle.js`): se agregó la prop `priceBefore` a
+> `ProductCard`, que renderiza un `<span>` tachado antes del precio. Es el **único** cambio hecho
+> a mano sobre el bundle. **Si algún día se regenera el design system desde Design Composer,
+> hay que volver a aplicarlo**, o los precios rebajados se van a ver sin el precio anterior.
 
 ## Objetivo
 Reorganizar el sitio Anlu Store en dos páginas (index.html y tienda.html)

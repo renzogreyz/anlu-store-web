@@ -968,6 +968,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 function ProductCard({
   name,
   price,
+  priceBefore,
   image,
   badge,
   category,
@@ -1134,7 +1135,14 @@ function ProductCard({
       fontSize: '20px',
       color: 'var(--violet-700)'
     }
-  }, price, " ", /*#__PURE__*/React.createElement("span", {
+  }, priceBefore ? /*#__PURE__*/React.createElement("span", {
+    style: {
+      textDecoration: 'line-through',
+      color: 'var(--text-muted)',
+      fontSize: '15px',
+      marginRight: '8px'
+    }
+  }, priceBefore) : null, price, " ", /*#__PURE__*/React.createElement("span", {
     style: {
       fontFamily: 'var(--font-sans)',
       fontSize: '11px',
