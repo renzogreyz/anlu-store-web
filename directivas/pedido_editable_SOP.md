@@ -18,11 +18,13 @@
 - **Colores y tallas sin stock en gris y tachados.** Un color agotado se puede tocar para ver sus fotos, pero no deja agregarlo. Una talla agotada no se puede tocar.
 - Si al color le queda **una sola talla con stock**, la elige sola. Con 3 o menos unidades avisa "¡Quedan 2!".
 - La cantidad no pasa del stock.
+- **Para agregar al pedido se cuenta lo que queda** (stock menos lo que ya está en el pedido, incluidos los combos). Si la única unidad ya está en el pedido, la talla sale gris "ya en tu pedido", la tarjeta dice **"Ya está en tu pedido"** y la ventana avisa "La única que queda ya está en tu pedido.". "Comprar" directo sigue disponible: manda solo esa prenda (arreglo del 2026-10-26).
 
 **Combos** (Inicio → Combos)
 - **Agregar al pedido** abre una ventana para elegir color y talla de **cada prenda del combo** (un "Trío de bodys" son 3 piezas).
 - Solo se ofrecen los colores y tallas que la dueña dejó entrar en el combo (`colores` / `talles` del JSON, Etapa 6A). Las tallas que no entran no aparecen; las que entran pero no tienen stock, en gris.
-- Si alguna prenda del combo no tiene stock en lo que entra, el combo dice **Agotado**.
+- Si alguna prenda del combo no tiene stock en lo que entra, el combo dice **Agotado**. Si hay stock pero ya está en el pedido, dice **Ya está en tu pedido**.
+- Cada pieza cuenta lo que eligieron las otras piezas del mismo combo: si las piezas 1 y 2 usan las 2 unidades de Negro S, en la pieza 3 Negro sale en gris.
 - Debajo queda el enlace "Consultar por WhatsApp", como antes.
 
 **Barra de abajo** (aparece cuando hay algo en el pedido)
@@ -72,6 +74,16 @@ Total: $164.000 (ahorro $36.000)
 - Lo que una clienta había elegido con el botón "Seleccionar" del sitio anterior (`anlu_seleccion`) pasa solo al pedido la primera vez, y se borra la clave vieja.
 - Sin `localStorage` (modo privado, bloqueado) el pedido funciona igual mientras la página esté abierta.
 - Los precios y el stock **no** se guardan: se leen siempre del catálogo, así que si la dueña cambia un precio, el pedido muestra el nuevo.
+
+## Verificación del arreglo "lo que queda" (2026-10-26, noche)
+- Lógica: 44 comprobaciones.
+- Navegador a 375 × 812: 71 comprobaciones, dos veces seguidas. Incluye:
+  - Prenda de 1 unidad que no se puede agregar dos veces.
+  - Talla con todo en el pedido, en gris.
+  - "Comprar" que sigue activo.
+  - Combo que no alcanza por lo que ya está en el pedido.
+  - Pieza 3 sin Negro S.
+  - Galería que arranca de cero al cambiar de color.
 
 ## Verificación (2026-10-26)
 

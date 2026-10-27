@@ -196,15 +196,19 @@
     return out;
   }
 
-  /** ¿Se puede pedir el combo? Cada prenda tiene que existir y tener stock en lo que entra. */
-  function comboDisponible(indice, combo) {
+  /**
+   * ¿Se puede pedir el combo? Cada prenda tiene que existir y tener stock en lo que entra.
+   * Con `items`, descuenta lo que ya está en el pedido (para no ofrecer lo que ya se eligió).
+   */
+  function comboDisponible(indice, combo, items) {
     if (!combo || combo.piezas.length === 0) return false;
+    const pedida = items ? demanda(items) : new Map();
     return combo.piezas.every((pieza) => {
       const opciones = opcionesPieza(indice.prendas.get(pieza.prendaId), pieza);
       let total = 0;
       for (const c of opciones) for (const t of c.tallas) {
         if (t.stock === null) return true;
-        total += t.stock;
+        total += Math.max(0, t.stock - (pedida.get(claveVariante(pieza.prendaId, c.nombre, t.nombre)) || 0));
       }
       return total >= pieza.cantidad;
     });
@@ -293,6 +297,26 @@
       else i.piezas.forEach((p) => sumar(p.prendaId, p.color, p.talla, i.cantidad));
     });
     return mapa;
+  }
+
+  /**
+   * Cuántas quedan para agregar de una combinación: stock menos lo que ya pide
+   * el pedido (y `extra`, otra demanda en curso, ej. las otras piezas de un combo
+   * que se está armando). null = no sabemos el stock (JSON viejo): hay.
+   */
+  function libre(items, indice, prendaId, color, talla, extra) {
+    const stock = stockDe(indice.prendas.get(String(prendaId)), color, talla);
+    if (stock === null) return null;
+    const k = claveVariante(String(prendaId), color, talla);
+    const usado = (demanda(items).get(k) || 0) + ((extra && extra.get(k)) || 0);
+    return Math.max(0, stock - usado);
+  }
+
+  /** ¿Queda algo de esta prenda para agregar al pedido? */
+  function quedaParaAgregar(items, indice, prendaId) {
+    const prenda = indice.prendas.get(String(prendaId));
+    if (!prenda) return false;
+    return prenda.colores.some((c) => c.tallas.some((t) => libre(items, indice, prenda.id, c.nombre, t.nombre) !== 0));
   }
 
   /** Cantidad máxima de una línea sin pasarse del stock (contando lo que piden las otras líneas). */
@@ -483,6 +507,9 @@
       revisar: () => revisar(items, indice),
       totales: () => totales(items, indice),
       maxCantidad: (uid) => maxCantidad(items, indice, uid),
+      libre: (id, color, talla, extra) => libre(items, indice, id, color, talla, extra),
+      quedaParaAgregar: (id) => quedaParaAgregar(items, indice, id),
+      comboDisponible: (combo) => comboDisponible(indice, combo, items),
       mensaje: () => mensaje(items, indice),
       enlace: () => enlaceWhatsApp(mensaje(items, indice)),
     };
@@ -492,7 +519,7 @@
     TELEFONO, SIN_LIMITE,
     clave, formatPrecio, parseColores, parseTalles, parseImagenes,
     normalizarPrenda, normalizarCombo, crearIndice,
-    stockDe, opcionesPieza, unidadesCombo, comboDisponible,
+    stockDe, opcionesPieza, unidadesCombo, comboDisponible, libre, quedaParaAgregar, claveVariante,
     agregarPrenda, agregarCombo, cambiarPrenda, cambiarCombo, cambiarPieza, quitar,
     contarUnidades, demanda, maxCantidad, revisar, totales, mensaje, enlaceWhatsApp,
     leerGuardado, guardar, crearStore,

@@ -146,10 +146,11 @@
     }
 
     /** Botón chico de color o talla. Sin stock: gris y tachado. */
-    function Opcion({ texto, elegida, agotada, onElegir, deshabilitada }) {
+    function Opcion({ texto, elegida, agotada, onElegir, deshabilitada, motivo }) {
+      const porque = motivo || (agotada ? 'agotado' : '');
       return h('button', {
         type: 'button', 'aria-pressed': elegida, disabled: deshabilitada,
-        'aria-label': texto + (agotada ? ' (agotado)' : ''), title: agotada ? 'Agotado' : texto, onClick: onElegir,
+        'aria-label': texto + (porque ? ' (' + porque + ')' : ''), title: porque ? porque.charAt(0).toUpperCase() + porque.slice(1) : texto, onClick: onElegir,
         style: {
           minHeight: 44, minWidth: 48, padding: '0 14px', borderRadius: 8, fontFamily: F.sans, fontSize: 13, fontWeight: 500,
           cursor: deshabilitada ? 'not-allowed' : 'pointer', textDecoration: agotada ? 'line-through' : 'none',
@@ -239,28 +240,52 @@
     }
 
     // ─── Ventana de una prenda: galería + color + talla + cantidad ──────────
-    function primerDisponible(prenda) {
-      const color = prenda.colores.find((c) => !c.agotado) || prenda.colores[0];
+    // Para AGREGAR al pedido cuenta lo que queda (stock − lo que ya está en el pedido).
+    // "Comprar ahora" manda solo esa prenda, así que mira el stock entero.
+    function opcionesConLibre(prenda, modo) {
+      return prenda.colores.map((c) => {
+        const tallas = c.tallas.map((t) => {
+          const libre = t.stock === 0 ? 0 : store.libre(prenda.id, c.nombre, t.nombre);
+          const enPedido = t.stock !== 0 && libre === 0;
+          return { ...t, libre, enPedido, bloqueada: t.stock === 0 || (modo === 'agregar' && enPedido) };
+        });
+        return { ...c, tallas, sinLibre: tallas.every((t) => t.stock === 0 || t.enPedido) };
+      });
+    }
+
+    function primerDisponible(colores, modo) {
+      const usable = (t) => t.stock !== 0 && (modo === 'comprar' || !t.enPedido);
+      const color = colores.find((c) => c.tallas.some(usable)) || colores.find((c) => !c.agotado) || colores[0];
       if (!color) return { color: '', talla: '' };
-      const disponibles = color.tallas.filter((t) => t.stock !== 0);
+      const disponibles = color.tallas.filter(usable);
       return { color: color.nombre, talla: disponibles.length === 1 ? disponibles[0].nombre : '' };
     }
 
+    /** "La única que queda ya está en tu pedido." o "Todo lo que queda de Negro ya está en tu pedido." */
+    function avisoEnPedido(colorObj) {
+      const total = colorObj.tallas.reduce((n, t) => n + (t.stock || 0), 0);
+      return total === 1 ? 'La única que queda ya está en tu pedido.' : 'Todo lo que queda de ' + colorObj.nombre + ' ya está en tu pedido.';
+    }
+
     function OpcionesPrenda({ prenda, modo, onCerrar }) {
-      const inicial = primerDisponible(prenda);
+      const colores = opcionesConLibre(prenda, modo);
+      const [inicial] = useState(() => primerDisponible(colores, modo));
       const [color, setColor] = useState(inicial.color);
       const [talla, setTalla] = useState(inicial.talla);
       const [cantidad, setCantidad] = useState(1);
-      const colorObj = prenda.colores.find((c) => c.nombre === color);
+      const colorObj = colores.find((c) => c.nombre === color);
       const tallaObj = colorObj ? colorObj.tallas.find((t) => t.nombre === talla) : undefined;
-      const max = tallaObj && tallaObj.stock !== null ? Math.max(1, tallaObj.stock) : P.SIN_LIMITE;
-      const listo = !!(colorObj && tallaObj && tallaObj.stock !== 0);
+      const tope = (n) => (n === null || n === undefined ? P.SIN_LIMITE : Math.max(1, n));
+      const max = !tallaObj ? P.SIN_LIMITE : modo === 'comprar' ? tope(tallaObj.stock) : tope(tallaObj.libre);
+      const puedeAgregar = !!(tallaObj && tallaObj.stock !== 0 && tallaObj.libre !== 0);
+      const puedeComprar = !!(tallaObj && tallaObj.stock !== 0);
       useEffect(() => { if (cantidad > max) setCantidad(max); }, [max]);
 
       const elegirColor = (c) => {
         setColor(c.nombre);
-        const sigue = c.tallas.find((t) => t.nombre === talla && t.stock !== 0);
-        const disponibles = c.tallas.filter((t) => t.stock !== 0);
+        const usable = (t) => !t.bloqueada && t.stock !== 0;
+        const sigue = c.tallas.find((t) => t.nombre === talla && usable(t));
+        const disponibles = c.tallas.filter(usable);
         setTalla(sigue ? sigue.nombre : disponibles.length === 1 ? disponibles[0].nombre : '');
       };
       const agregar = () => {
@@ -273,34 +298,52 @@
         window.open(P.enlaceWhatsApp(P.mensaje(linea, store.indice())), '_blank', 'noopener');
         onCerrar();
       };
-      const textoBoton = !colorObj || colorObj.agotado ? 'Agotado en este color' : !talla ? 'Elige una talla' : null;
+      const textoComprar = !colorObj || colorObj.agotado ? 'Agotado en este color' : !talla ? 'Elige una talla' : null;
+      const textoAgregar = !colorObj || colorObj.agotado ? 'Agotado en este color'
+        : (tallaObj && tallaObj.enPedido) || (!talla && colorObj.sinLibre) ? 'Ya está en tu pedido'
+          : !talla ? 'Elige una talla' : null;
       const pie = prenda.agotado
         ? h(BotonPrincipal, { deshabilitado: true }, 'Agotado')
         : [
-          modo !== 'comprar' ? h(BotonPrincipal, { key: 'a', onClick: agregar, deshabilitado: !listo }, textoBoton || 'Agregar al pedido') : null,
-          modo !== 'agregar' ? h(BotonPrincipal, { key: 'c', onClick: comprar, deshabilitado: !listo, secundario: modo === 'ver', tipoWhatsApp: true },
-            textoBoton && modo === 'comprar' ? textoBoton : 'Comprar ahora por WhatsApp') : null,
+          modo !== 'comprar' ? h(BotonPrincipal, { key: 'a', onClick: agregar, deshabilitado: !puedeAgregar }, textoAgregar || 'Agregar al pedido') : null,
+          modo !== 'agregar' ? h(BotonPrincipal, { key: 'c', onClick: comprar, deshabilitado: !puedeComprar, secundario: modo === 'ver', tipoWhatsApp: true },
+            textoComprar && modo === 'comprar' ? textoComprar : 'Comprar ahora por WhatsApp') : null,
         ];
+      const quedan = tallaObj ? (modo === 'comprar' ? tallaObj.stock : tallaObj.libre) : null;
 
       return h(Hoja, { abierta: true, titulo: prenda.nombre, subtitulo: prenda.categoria, onCerrar, pie },
-        h(Galeria, { imagenes: colorObj ? colorObj.imagenes : [], nombre: prenda.nombre + (color ? ' ' + color : '') }),
+        // key = color: al cambiar de color la galería arranca de cero (sin mostrar la posición anterior)
+        h(Galeria, { key: color || '-', imagenes: colorObj ? colorObj.imagenes : [], nombre: prenda.nombre + (color ? ' ' + color : '') }),
         h('div', { style: { padding: 16, display: 'grid', gap: 16 } },
           h(Precio, { final: prenda.precioFinal, antes: prenda.descuento ? prenda.precio : 0, descuento: prenda.descuento, grande: true }),
           prenda.descripcion ? h('p', { style: { margin: 0, fontSize: 14, lineHeight: 1.6, color: C.suave, fontWeight: 300 } }, prenda.descripcion) : null,
           h('div', { style: { display: 'grid', gap: 8 } },
             h('div', { style: { ...eyebrow, color: C.suave } }, 'Color' + (color ? ' · ' + color : '') + (colorObj && colorObj.agotado ? ' (agotado)' : '')),
             h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 8 } },
-              prenda.colores.map((c) => h(Opcion, { key: c.nombre, texto: c.nombre, elegida: c.nombre === color, agotada: c.agotado, onElegir: () => elegirColor(c) })))),
+              colores.map((c) => h(Opcion, {
+                key: c.nombre, texto: c.nombre, elegida: c.nombre === color,
+                agotada: c.agotado || (modo === 'agregar' && c.sinLibre),
+                motivo: !c.agotado && modo === 'agregar' && c.sinLibre ? 'ya en tu pedido' : '',
+                onElegir: () => elegirColor(c),
+              })))),
           colorObj ? h('div', { style: { display: 'grid', gap: 8 } },
             h('div', { style: { ...eyebrow, color: C.suave } }, 'Talla'),
             h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 8 } },
               colorObj.tallas.map((t) => h(Opcion, {
-                key: t.nombre, texto: t.nombre, elegida: t.nombre === talla, agotada: t.stock === 0, deshabilitada: t.stock === 0,
+                key: t.nombre, texto: t.nombre, elegida: t.nombre === talla,
+                agotada: t.bloqueada, deshabilitada: t.bloqueada,
+                motivo: t.stock !== 0 && t.enPedido && modo === 'agregar' ? 'ya en tu pedido' : '',
                 onElegir: () => setTalla(t.nombre),
               }))),
-            tallaObj && tallaObj.stock !== null && tallaObj.stock > 0 && tallaObj.stock <= 3
-              ? h('span', { style: { fontSize: 12, color: C.dorado } }, tallaObj.stock === 1 ? '¡Queda 1!' : '¡Quedan ' + tallaObj.stock + '!')
-              : null) : null,
+            // Avisos de stock: si todo lo que queda del color ya está en el pedido, lo dice una vez
+            modo !== 'comprar' && colorObj.sinLibre && !colorObj.agotado
+              ? h('span', { style: { fontSize: 12, color: C.violeta } }, avisoEnPedido(colorObj))
+              : tallaObj && tallaObj.enPedido && modo !== 'comprar'
+                ? h('span', { style: { fontSize: 12, color: C.violeta } },
+                  tallaObj.stock === 1 ? 'La única que queda ya está en tu pedido.' : 'Las ' + tallaObj.stock + ' que quedan ya están en tu pedido.')
+                : quedan !== null && quedan > 0 && quedan <= 3
+                  ? h('span', { style: { fontSize: 12, color: C.dorado } }, quedan === 1 ? '¡Queda 1!' : '¡Quedan ' + quedan + '!')
+                  : null) : null,
           !prenda.agotado ? h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 } },
             h('span', { style: { ...eyebrow, color: C.suave } }, 'Cantidad'),
             h(Stepper, { valor: cantidad, max, onCambiar: setCantidad, etiqueta: 'Cantidad' })) : null));
@@ -314,6 +357,7 @@
       const prenda = s.indice().prendas.get(String(productoId));
       if (!prenda) return null;
       const enPedido = s.unidadesDePrenda(prenda.id);
+      const queda = s.quedaParaAgregar(prenda.id); // stock − lo que ya está en el pedido
       const resaltada = highlight === true || highlight === 'true';
       const coloresConStock = prenda.colores.filter((c) => !c.agotado).length;
       const resumenColores = prenda.colores.length > 1
@@ -350,14 +394,36 @@
         resumenColores ? h('span', { style: { fontSize: 12, color: C.suave } }, resumenColores) : null),
       h('div', { style: { padding: '0 14px 14px', display: 'grid', gap: 8 } },
         h(BotonPrincipal, { onClick: () => setModo('comprar'), deshabilitado: prenda.agotado, tipoWhatsApp: true, chico: true }, 'Comprar'),
-        h(BotonPrincipal, { onClick: () => setModo('agregar'), deshabilitado: prenda.agotado, secundario: true, chico: true },
-          enPedido ? 'Agregar otra' : 'Agregar al pedido')),
+        h(BotonPrincipal, { onClick: () => setModo('agregar'), deshabilitado: prenda.agotado || !queda, secundario: true, chico: true },
+          !queda && !prenda.agotado ? 'Ya está en tu pedido' : enPedido ? 'Agregar otra' : 'Agregar al pedido')),
       modo ? h(OpcionesPrenda, { prenda, modo, onCerrar: () => setModo(null) }) : null);
     }
 
     // ─── Combo: botones y ventana para elegir cada pieza ────────────────────
-    function ElegirPieza({ prenda, pieza, valor, onCambiar, numero }) {
-      const opciones = P.opcionesPieza(prenda, pieza);
+    /** Demanda de las piezas del combo que se está armando, menos la pieza `excepto`. */
+    function demandaPiezas(piezas, excepto) {
+      const mapa = new Map();
+      piezas.forEach((p, k) => {
+        if (k === excepto || !p.color || !p.talla) return;
+        const clave = P.claveVariante(p.prendaId, p.color, p.talla);
+        mapa.set(clave, (mapa.get(clave) || 0) + 1);
+      });
+      return mapa;
+    }
+
+    /** Opciones de una pieza con lo que queda (stock − pedido − las otras piezas de este combo). */
+    function opcionesPiezaLibres(prenda, pieza, extra) {
+      return P.opcionesPieza(prenda, pieza).map((c) => {
+        const tallas = c.tallas.map((t) => {
+          const libre = t.stock === 0 ? 0 : store.libre(pieza.prendaId, c.nombre, t.nombre, extra);
+          return { ...t, libre, enPedido: t.stock !== 0 && libre === 0, bloqueada: t.stock === 0 || libre === 0 };
+        });
+        return { ...c, tallas, bloqueado: tallas.every((t) => t.bloqueada) };
+      });
+    }
+
+    function ElegirPieza({ prenda, pieza, valor, onCambiar, numero, extra }) {
+      const opciones = opcionesPiezaLibres(prenda, pieza, extra);
       const colorObj = opciones.find((c) => c.nombre === valor.color);
       return h('div', { style: { display: 'grid', gap: 8, padding: '12px 0', borderTop: '1px solid ' + C.borde } },
         h('div', { style: { display: 'flex', gap: 10, alignItems: 'center' } },
@@ -366,24 +432,33 @@
             h('div', { style: { fontSize: 14, color: C.titulo } }, pieza.nombre + (numero ? ' (' + numero + ')' : '')),
             h('div', { style: { fontSize: 12, color: C.suave } }, valor.color && valor.talla ? valor.color + ' · Talla ' + valor.talla : 'Elige color y talla'))),
         h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } },
-          opciones.map((c) => h(Opcion, { key: c.nombre, texto: c.nombre, elegida: c.nombre === valor.color, agotada: c.agotado,
+          opciones.map((c) => h(Opcion, { key: c.nombre, texto: c.nombre, elegida: c.nombre === valor.color, agotada: c.bloqueado,
+            motivo: c.bloqueado && !c.agotado ? 'ya en tu pedido' : '',
             onElegir: () => {
-              const sigue = c.tallas.find((t) => t.nombre === valor.talla && t.stock !== 0);
-              const disp = c.tallas.filter((t) => t.stock !== 0);
+              const sigue = c.tallas.find((t) => t.nombre === valor.talla && !t.bloqueada);
+              const disp = c.tallas.filter((t) => !t.bloqueada);
               onCambiar({ color: c.nombre, talla: sigue ? sigue.nombre : disp.length === 1 ? disp[0].nombre : '' });
             } }))),
         colorObj ? h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } },
-          colorObj.tallas.map((t) => h(Opcion, { key: t.nombre, texto: t.nombre, elegida: t.nombre === valor.talla, agotada: t.stock === 0, deshabilitada: t.stock === 0,
+          colorObj.tallas.map((t) => h(Opcion, { key: t.nombre, texto: t.nombre, elegida: t.nombre === valor.talla,
+            agotada: t.bloqueada, deshabilitada: t.bloqueada, motivo: t.enPedido ? 'ya en tu pedido' : '',
             onElegir: () => onCambiar({ color: valor.color, talla: t.nombre }) }))) : null);
     }
 
+    /** Si una pieza tiene una sola opción posible, se elige sola (contando lo que ya se usó). */
     function piezasIniciales(combo, indice) {
-      return P.unidadesCombo(combo).map((pieza) => {
-        const opciones = P.opcionesPieza(indice.prendas.get(pieza.prendaId), pieza).filter((c) => !c.agotado);
-        if (opciones.length !== 1) return { prendaId: pieza.prendaId, color: '', talla: '' };
-        const disp = opciones[0].tallas.filter((t) => t.stock !== 0);
-        return { prendaId: pieza.prendaId, color: opciones[0].nombre, talla: disp.length === 1 ? disp[0].nombre : '' };
+      const elegidas = [];
+      P.unidadesCombo(combo).forEach((pieza, j) => {
+        const extra = demandaPiezas(elegidas, -1);
+        const opciones = opcionesPiezaLibres(indice.prendas.get(pieza.prendaId), pieza, extra).filter((c) => !c.bloqueado);
+        let elegida = { prendaId: pieza.prendaId, color: '', talla: '' };
+        if (opciones.length === 1) {
+          const disp = opciones[0].tallas.filter((t) => !t.bloqueada);
+          elegida = { prendaId: pieza.prendaId, color: opciones[0].nombre, talla: disp.length === 1 ? disp[0].nombre : '' };
+        }
+        elegidas[j] = elegida;
       });
+      return elegidas;
     }
 
     function OpcionesCombo({ combo, onCerrar }) {
@@ -410,7 +485,7 @@
         unidades.map((pieza, j) => {
           repetidas[pieza.prendaId] = (repetidas[pieza.prendaId] || 0) + 1;
           return h(ElegirPieza, {
-            key: j, prenda: indice.prendas.get(pieza.prendaId), pieza, valor: piezas[j],
+            key: j, prenda: indice.prendas.get(pieza.prendaId), pieza, valor: piezas[j], extra: demandaPiezas(piezas, j),
             numero: pieza.cantidad > 1 ? repetidas[pieza.prendaId] + ' de ' + pieza.cantidad : '',
             onCambiar: (cambio) => setPiezas((ps) => ps.map((p, k) => (k === j ? { ...p, ...cambio } : p))),
           });
@@ -422,10 +497,12 @@
       const [abierta, setAbierta] = useState(false);
       const combo = s.indice().combos.get(String(comboId));
       if (!combo) return null;
-      const disponible = P.comboDisponible(s.indice(), combo);
+      const hayStock = P.comboDisponible(s.indice(), combo);
+      const disponible = s.comboDisponible(combo); // descontando lo que ya está en el pedido
       const consulta = P.enlaceWhatsApp('¡Hola Anlu! Me interesa el combo "' + combo.nombre + '". ¿Me confirmas disponibilidad y el envío?');
       return h('div', { style: { display: 'grid', gap: 6, width: '100%' } },
-        h(BotonPrincipal, { onClick: () => setAbierta(true), deshabilitado: !disponible }, disponible ? 'Agregar al pedido' : 'Agotado'),
+        h(BotonPrincipal, { onClick: () => setAbierta(true), deshabilitado: !disponible },
+          disponible ? 'Agregar al pedido' : hayStock ? 'Ya está en tu pedido' : 'Agotado'),
         h('a', { href: consulta, target: '_blank', rel: 'noopener noreferrer',
           style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 44, fontFamily: F.sans, fontSize: 12, color: C.violeta, textDecoration: 'underline' } },
         'Consultar por WhatsApp'),
