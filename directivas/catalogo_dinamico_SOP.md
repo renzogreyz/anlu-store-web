@@ -1,5 +1,12 @@
 # Directiva: Catálogo Dinámico + Estructura de Sitio
 
+> **Actualización 2026-10-28 (Etapa 7 del panel)**: las **categorías** ya no están escritas a mano.
+> Llegan en `catalogo.categorias = [{ nombre, orden, imagen }]` (las crea, renombra y ordena la dueña).
+> `listaCategorias()` y `categoriasConStockOrdenadas()` (en `index.html` y `tienda.html`) arman las
+> pestañas de la Tienda y los círculos del Inicio en ese orden, solo con las que tienen prendas con stock.
+> Si una prenda trae una categoría que no está en la lista, se muestra al final. Si el JSON no trae
+> `categorias`, se usa `CATEGORIAS_DE_RESPALDO` (la lista de siempre).
+
 > **Actualización 2026-10-26 (Etapa 6 del panel)**: la tarjeta de prenda, la ventana de talla/color
 > y la barra de selección ahora son **archivos propios del sitio** (`js/pedido.js` y `js/tienda-ui.js`),
 > con galería por color, colores y tallas sin stock en gris, combos en el pedido y "Editar compra".

@@ -346,8 +346,32 @@ function textosDe(catalogo) {
 const prendaDeBanner = n => n.productoId || n.id_producto || '';
 
 
-// Orden preferido de categorías
-const ORDEN_CATEGORIAS = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
+// ─── Categorías: las crea y ordena la dueña en el panel (Etapa 7) ────────────
+// Llegan en catalogo.categorias = [{ nombre, orden, imagen }]. Si el JSON no la
+// trae (el viejo de la planilla), se usa la lista de siempre.
+const CATEGORIAS_DE_RESPALDO = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
+function listaCategorias(catalogo) {
+  const lista = catalogo && Array.isArray(catalogo.categorias) ? catalogo.categorias : [];
+  const ordenadas = lista
+    .filter(c => c && typeof c.nombre === 'string' && c.nombre.trim())
+    .slice()
+    .sort((a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0));
+  if (ordenadas.length === 0) return CATEGORIAS_DE_RESPALDO.map(nombre => ({ nombre, imagen: '' }));
+  return ordenadas.map(c => ({ nombre: c.nombre, imagen: c.imagen || '' }));
+}
+// Categorías con prendas disponibles, en el orden del panel. Si alguna prenda
+// trae una categoría que no está en la lista, va al final (no se pierde).
+function categoriasConStockOrdenadas(catalogo) {
+  const conStock = new Set(
+    (catalogo.productos || [])
+      .filter(p => p.variantes && p.variantes.some(v => v.stock > 0))
+      .map(p => p.categoria)
+  );
+  const lista = listaCategorias(catalogo);
+  const nombres = lista.map(c => c.nombre);
+  const extra = [...conStock].filter(c => !nombres.includes(c)).map(nombre => ({ nombre, imagen: '' }));
+  return [...lista, ...extra].filter(c => conStock.has(c.nombre));
+}
 
 // ─── Pedido ──────────────────────────────────────────────────────────────────
 // El pedido (prendas y combos elegidos) lo maneja js/pedido.js y se guarda en
@@ -399,31 +423,20 @@ class Component extends DCLogic {
       vestidoEspalda: cv && cv.esenciaAnlu && cv.esenciaAnlu.vestidoEspalda || '',
     };
 
-    // ── CAMBIO B: categorías filtradas por stock + imagen desde contenidoVisual ──
+    // ── Categorías con prendas disponibles, en el orden del panel, con su foto ──
     const categoriasCV = cv && cv.categorias || {};
-
-    // Calcular qué categorías tienen al menos un producto con stock > 0
-    const categoriasConStock = catalogo
-      ? new Set(
-          catalogo.productos
-            .filter(p => p.variantes && p.variantes.some(v => v.stock > 0))
-            .map(p => p.categoria)
-        )
-      : new Set();
-
-    // "Todas" las de la lista ordenada que tengan stock, con su imagen
-    const categorias = ORDEN_CATEGORIAS
-      .filter(label => !catalogo || categoriasConStock.has(label))
-      .map(label => ({
-        label,
-        href: './tienda.html?categoria=' + encodeURIComponent(label),
-        image: (categoriasCV[label]) || '',
-      }));
+    const categorias = catalogo
+      ? categoriasConStockOrdenadas(catalogo).map(c => ({
+          label: c.nombre,
+          href: './tienda.html?categoria=' + encodeURIComponent(c.nombre),
+          image: c.imagen || categoriasCV[c.nombre] || '',
+        }))
+      : [];
 
     if (!catalogo) {
       return {
         textos, heroImgs, esenciaImgs,
-        categorias: ORDEN_CATEGORIAS.map(label => ({ label, href: './tienda.html?categoria=' + encodeURIComponent(label), image: '' })),
+        categorias: [],
         novedadesCarrusel: [],
         productosNuevos: [],
         combos: [], hayCombos: false,

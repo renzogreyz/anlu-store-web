@@ -244,8 +244,32 @@ const slug = s => 'prenda-' + s.toLowerCase()
   .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-// Orden preferido de categorías (para que las pestañas aparezcan siempre en este orden)
-const ORDEN_CATEGORIAS = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
+// ─── Categorías: las crea y ordena la dueña en el panel (Etapa 7) ────────────
+// Llegan en catalogo.categorias = [{ nombre, orden, imagen }]. Si el JSON no la
+// trae (el viejo de la planilla), se usa la lista de siempre.
+const CATEGORIAS_DE_RESPALDO = ['Blusas','Bodys','Trajes de baño','Vestidos','Jeans','Pijamas'];
+function listaCategorias(catalogo) {
+  const lista = catalogo && Array.isArray(catalogo.categorias) ? catalogo.categorias : [];
+  const ordenadas = lista
+    .filter(c => c && typeof c.nombre === 'string' && c.nombre.trim())
+    .slice()
+    .sort((a, b) => (Number(a.orden) || 0) - (Number(b.orden) || 0));
+  if (ordenadas.length === 0) return CATEGORIAS_DE_RESPALDO.map(nombre => ({ nombre, imagen: '' }));
+  return ordenadas.map(c => ({ nombre: c.nombre, imagen: c.imagen || '' }));
+}
+// Categorías con prendas disponibles, en el orden del panel. Si alguna prenda
+// trae una categoría que no está en la lista, va al final (no se pierde).
+function categoriasConStockOrdenadas(catalogo) {
+  const conStock = new Set(
+    (catalogo.productos || [])
+      .filter(p => p.variantes && p.variantes.some(v => v.stock > 0))
+      .map(p => p.categoria)
+  );
+  const lista = listaCategorias(catalogo);
+  const nombres = lista.map(c => c.nombre);
+  const extra = [...conStock].filter(c => !nombres.includes(c)).map(nombre => ({ nombre, imagen: '' }));
+  return [...lista, ...extra].filter(c => conStock.has(c.nombre));
+}
 
 // ─── Pedido ──────────────────────────────────────────────────────────────────
 // El pedido (prendas y combos elegidos) lo maneja js/pedido.js y se guarda en
@@ -336,7 +360,7 @@ class Component extends DCLogic {
 
     const hayProductosDisponibles = categoriasConStock.size > 0;
 
-    const categoriasOrdenadas = ORDEN_CATEGORIAS.filter(c => categoriasConStock.has(c));
+    const categoriasOrdenadas = categoriasConStockOrdenadas(catalogo).map(c => c.nombre);
     const tabLabels = hayProductosDisponibles ? ['Todas', ...categoriasOrdenadas] : ['Todas'];
 
     const categoriaActiva = (category === 'Todas' || categoriasConStock.has(category))
